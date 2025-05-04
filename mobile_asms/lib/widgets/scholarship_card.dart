@@ -27,7 +27,7 @@ class ScholarshipCard extends StatelessWidget {
     final formatter = NumberFormat.currency(symbol: '\$');
     final deadlineDate = DateTime.parse(deadline);
     final isExpired = deadlineDate.isBefore(DateTime.now());
-    
+
     return Card(
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
@@ -62,7 +62,7 @@ class ScholarshipCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  
+
                   // Scholarship info
                   Expanded(
                     child: Column(
@@ -86,7 +86,7 @@ class ScholarshipCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        
+
                         // Amount
                         Row(
                           children: [
@@ -111,7 +111,7 @@ class ScholarshipCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 16),
-              
+
               // Location and deadline
               Row(
                 children: [
@@ -139,7 +139,7 @@ class ScholarshipCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  
+
                   // Deadline
                   Container(
                     padding: const EdgeInsets.symmetric(
@@ -147,8 +147,8 @@ class ScholarshipCard extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: isExpired 
-                          ? Colors.red.shade100 
+                      color: isExpired
+                          ? Colors.red.shade100
                           : Colors.green.shade100,
                       borderRadius: BorderRadius.circular(4),
                     ),
@@ -158,20 +158,20 @@ class ScholarshipCard extends StatelessWidget {
                         Icon(
                           Icons.calendar_today,
                           size: 12,
-                          color: isExpired 
-                              ? Colors.red.shade700 
+                          color: isExpired
+                              ? Colors.red.shade700
                               : Colors.green.shade700,
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          isExpired 
-                              ? 'Expired' 
+                          isExpired
+                              ? 'Expired'
                               : DateFormat('MMM d, y').format(deadlineDate),
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
-                            color: isExpired 
-                                ? Colors.red.shade700 
+                            color: isExpired
+                                ? Colors.red.shade700
                                 : Colors.green.shade700,
                           ),
                         ),
@@ -186,4 +186,4 @@ class ScholarshipCard extends StatelessWidget {
       ),
     );
   }
-} 
+}

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../config/app_constants.dart';
-import '../providers/auth_provider.dart';
 import '../widgets/scholarship_card.dart';
+import 'scholarships_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,12 +12,14 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
+  // Simple user data without Provider
+  final Map<String, String> userData = {
+    'fullName': 'ASMS User',
+    'email': 'user@example.com'
+  };
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
-    final user = authProvider.currentUser;
-
     return Scaffold(
       appBar: AppBar(
         title: Text(_getAppBarTitle()),
@@ -37,13 +38,13 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: EdgeInsets.zero,
           children: [
             UserAccountsDrawerHeader(
-              accountName: Text(user?.fullName ?? 'User'),
-              accountEmail: Text(user?.email ?? 'user@example.com'),
+              accountName: Text(userData['fullName'] ?? 'User'),
+              accountEmail: Text(userData['email'] ?? 'user@example.com'),
               currentAccountPicture: CircleAvatar(
                 backgroundColor: Colors.white,
                 child: Text(
-                  (user?.fullName.isNotEmpty == true)
-                      ? user!.fullName[0].toUpperCase()
+                  (userData['fullName']?.isNotEmpty == true)
+                      ? userData['fullName']![0].toUpperCase()
                       : 'U',
                   style: const TextStyle(
                     fontSize: 24,
@@ -70,6 +71,19 @@ class _HomeScreenState extends State<HomeScreen> {
               onTap: () {
                 setState(() => _currentIndex = 1);
                 Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.search_outlined),
+              title: const Text('View Scholarships'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ScholarshipsScreen(),
+                  ),
+                );
               },
             ),
             ListTile(
@@ -100,10 +114,9 @@ class _HomeScreenState extends State<HomeScreen> {
             ListTile(
               leading: const Icon(Icons.exit_to_app),
               title: const Text('Logout'),
-              onTap: () async {
+              onTap: () {
                 Navigator.pop(context);
-                await authProvider.logout();
-                if (!mounted) return;
+                // Simplified logout - just navigate back to login
                 Navigator.pushReplacementNamed(context, '/login');
               },
             ),
@@ -185,7 +198,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHomeTab() {
-    // Placeholder content
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -193,55 +205,76 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           // Welcome message
           Text(
-            'Welcome back, ${Provider.of<AuthProvider>(context).currentUser?.fullName.split(' ').first ?? 'User'}!',
+            'Welcome back, ${userData['fullName']?.split(' ').first ?? 'User'}!',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Find and manage your scholarships',
+            'Manage your scholarships easily',
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: AppConstants.textSecondaryColor,
                 ),
           ),
           const SizedBox(height: 24),
 
-          // Stats cards
+          // Scholarship Statistics - similar to web dashboard
           Row(
             children: [
               _buildStatCard(
                 context,
-                'Applications',
-                '2',
-                Icons.school_outlined,
-                Colors.blue.shade700,
+                'Approved Scholarships',
+                '0',
+                Icons.check_circle_outline,
+                Colors.green.shade700,
               ),
-              const SizedBox(width: 16),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
               _buildStatCard(
                 context,
-                'Pending',
-                '1',
-                Icons.hourglass_empty,
+                'Disbursed Scholarships',
+                '0',
+                Icons.attach_money,
+                Colors.blue.shade700,
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              _buildStatCard(
+                context,
+                'Total Available Scholarships',
+                '5',
+                Icons.school_outlined,
                 Colors.orange.shade700,
               ),
             ],
           ),
           const SizedBox(height: 32),
 
-          // Featured scholarships
+          // Available Scholarships
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Featured Scholarships',
+                'Available Scholarships',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
               ),
               TextButton(
                 onPressed: () {
-                  // TODO: Navigate to all scholarships
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ScholarshipsScreen(),
+                    ),
+                  );
                 },
                 child: const Text('View All'),
               ),
@@ -249,15 +282,14 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 8),
 
-          // Scholarship cards (placeholders)
-          // We'll replace this with actual data from API
+          // Scholarship cards
           const ScholarshipCard(
             id: 1,
             name: 'Engineering Excellence Scholarship',
             provider: 'TechFoundation',
             amount: 10000,
             deadline: '2023-12-15',
-            location: 'New York, NY',
+            location: 'Accra, Ghana',
             distance: 0,
           ),
           const SizedBox(height: 16),
@@ -267,7 +299,7 @@ class _HomeScreenState extends State<HomeScreen> {
             provider: 'Global Education Fund',
             amount: 5000,
             deadline: '2023-11-30',
-            location: 'Boston, MA',
+            location: 'Accra, Ghana',
             distance: 0,
           ),
         ],
@@ -291,8 +323,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildProfileTab() {
     // Placeholder for profile tab
-    final user = Provider.of<AuthProvider>(context).currentUser;
-    
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -302,8 +332,8 @@ class _HomeScreenState extends State<HomeScreen> {
             radius: 50,
             backgroundColor: AppConstants.primaryColor.withOpacity(0.1),
             child: Text(
-              (user?.fullName.isNotEmpty == true)
-                  ? user!.fullName[0].toUpperCase()
+              (userData['fullName']?.isNotEmpty == true)
+                  ? userData['fullName']![0].toUpperCase()
                   : 'U',
               style: const TextStyle(
                 fontSize: 40,
@@ -313,25 +343,25 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // User name
           Text(
-            user?.fullName ?? 'User Name',
+            userData['fullName'] ?? 'User Name',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
           ),
           const SizedBox(height: 8),
-          
+
           // Email
           Text(
-            user?.email ?? 'email@example.com',
+            userData['email'] ?? 'email@example.com',
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: AppConstants.textSecondaryColor,
                 ),
           ),
           const SizedBox(height: 32),
-          
+
           // Profile actions
           ListTile(
             leading: const Icon(Icons.edit),
@@ -386,27 +416,45 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
-            Icon(icon, color: color, size: 28),
-            const SizedBox(height: 12),
-            Text(
-              value,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, color: color, size: 28),
             ),
-            const SizedBox(height: 4),
-            Text(
-              title,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: AppConstants.textSecondaryColor,
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    value,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
+                  const SizedBox(height: 4),
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppConstants.textSecondaryColor,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: AppConstants.textSecondaryColor,
             ),
           ],
         ),
       ),
     );
   }
-} 
+}
