@@ -1,8 +1,8 @@
 <?php 
 // DB credentials.
 define('DB_HOST','localhost');
-define('DB_USER','princess.balogun');
-define('DB_PASS','ZyxB09$$');
+define('DB_USER','root');
+define('DB_PASS','');
 define('DB_NAME','webtech_fall2024_princess_balogun');
 // Establish database connection.
 try
