@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../config/app_constants.dart';
 import 'package:intl/intl.dart';
+import '../screens/scholarship_detail_screen.dart';
 
 class ScholarshipCard extends StatelessWidget {
   final int id;
@@ -24,7 +25,7 @@ class ScholarshipCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final formatter = NumberFormat.currency(symbol: '\$');
+    final formatter = NumberFormat.currency(symbol: '₵');
     final deadlineDate = DateTime.parse(deadline);
     final isExpired = deadlineDate.isBefore(DateTime.now());
 
@@ -36,7 +37,15 @@ class ScholarshipCard extends StatelessWidget {
       elevation: 2,
       child: InkWell(
         onTap: () {
-          // TODO: Navigate to scholarship detail page
+          // Navigate to scholarship detail page
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ScholarshipDetailScreen(
+                scholarshipId: id,
+              ),
+            ),
+          );
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(
