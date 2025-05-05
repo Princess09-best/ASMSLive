@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'dart:io';
 import '../config/app_constants.dart';
 import '../widgets/scholarship_card.dart';
 import '../models/scholarship.dart';
+import '../services/scholarship_service.dart';
+import '../services/connectivity_service.dart';
 
 class ScholarshipsScreen extends StatefulWidget {
   const ScholarshipsScreen({super.key});
@@ -16,11 +16,28 @@ class _ScholarshipsScreenState extends State<ScholarshipsScreen> {
   bool _isLoading = true;
   String _errorMessage = '';
   List<Scholarship> _scholarships = [];
+  bool _isConnected = true;
+  final ConnectivityService _connectivityService = ConnectivityService();
 
   @override
   void initState() {
     super.initState();
+    _checkConnectivity();
     _fetchScholarships();
+
+    // Listen for connectivity changes
+    _connectivityService.listenToConnectivityChanges((isConnected) {
+      setState(() {
+        _isConnected = isConnected;
+      });
+    });
+  }
+
+  Future<void> _checkConnectivity() async {
+    bool isConnected = await _connectivityService.isConnected();
+    setState(() {
+      _isConnected = isConnected;
+    });
   }
 
   Future<void> _fetchScholarships() async {
@@ -30,110 +47,19 @@ class _ScholarshipsScreenState extends State<ScholarshipsScreen> {
     });
 
     try {
-      // Connect to the real API endpoint
-      final uri = Uri.parse('http://10.0.2.2/ASMSLive/api/scholarships');
-      final client = HttpClient();
-      final request = await client.getUrl(uri);
-      final response = await request.close();
-      final responseBody = await response.transform(utf8.decoder).join();
+      // Use the ScholarshipService to get all scholarships (without limit)
+      final scholarships = await ScholarshipService.getScholarships(limit: 50);
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(responseBody);
-
-        if (data.containsKey('scholarships')) {
-          final scholarshipsList = data['scholarships'] as List;
-
-          // Convert API response to Scholarship objects
-          final scholarships = scholarshipsList.map((item) {
-            // Make sure data types match our model
-            return Scholarship(
-              id: item['ID'] is String ? int.parse(item['ID']) : item['ID'],
-              name: item['SchemeName'] ?? 'Unknown Scholarship',
-              provider: item['Organization'] ?? 'Unknown Provider',
-              amount: item['ScholarAmount'] is String
-                  ? double.tryParse(item['ScholarAmount']) ?? 0.0
-                  : (item['ScholarAmount'] ?? 0.0).toDouble(),
-              deadline: item['LastDate'] ?? DateTime.now().toString(),
-              location: item['Category'] ?? 'Ghana',
-              distance: 0.0, // To be calculated later with geolocation
-            );
-          }).toList();
-
-          setState(() {
-            _scholarships = scholarships;
-            _isLoading = false;
-          });
-        } else {
-          throw Exception('Invalid response format');
-        }
-      } else {
-        throw Exception('Failed to load scholarships: ${response.statusCode}');
-      }
+      setState(() {
+        _scholarships = scholarships;
+        _isLoading = false;
+      });
     } catch (e) {
       setState(() {
         _errorMessage = 'Failed to load scholarships: $e';
         _isLoading = false;
       });
-
-      // Fallback to sample data for testing when API fails
-      _loadSampleData();
     }
-  }
-
-  // Add a method to load sample data as fallback
-  void _loadSampleData() {
-    final sampleData = [
-      {
-        'id': 1,
-        'name': 'Engineering Excellence Scholarship',
-        'provider': 'TechFoundation',
-        'amount': 10000,
-        'deadline': '2023-12-15',
-        'location': 'Accra, Ghana',
-        'distance': 0,
-      },
-      {
-        'id': 2,
-        'name': 'Future Leaders Scholarship',
-        'provider': 'Global Education Fund',
-        'amount': 5000,
-        'deadline': '2023-11-30',
-        'location': 'Accra, Ghana',
-        'distance': 0,
-      },
-      {
-        'id': 3,
-        'name': 'Computer Science Innovation Grant',
-        'provider': 'Digital Africa Initiative',
-        'amount': 7500,
-        'deadline': '2023-10-15',
-        'location': 'Kumasi, Ghana',
-        'distance': 0,
-      },
-      {
-        'id': 4,
-        'name': 'Women in STEM Scholarship',
-        'provider': 'African Women\'s Foundation',
-        'amount': 12000,
-        'deadline': '2024-01-30',
-        'location': 'Accra, Ghana',
-        'distance': 0,
-      },
-      {
-        'id': 5,
-        'name': 'Entrepreneurship Development Fund',
-        'provider': 'Ghana Business Council',
-        'amount': 8000,
-        'deadline': '2023-11-15',
-        'location': 'Cape Coast, Ghana',
-        'distance': 0,
-      },
-    ];
-
-    setState(() {
-      _scholarships =
-          sampleData.map((data) => Scholarship.fromJson(data)).toList();
-    });
   }
 
   @override
@@ -158,7 +84,39 @@ class _ScholarshipsScreenState extends State<ScholarshipsScreen> {
       ),
       body: RefreshIndicator(
         onRefresh: _fetchScholarships,
-        child: _buildBody(),
+        child: Column(
+          children: [
+            // Network status indicator
+            if (!_isConnected)
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 6.0, horizontal: 12.0),
+                margin: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade100,
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.wifi_off, color: Colors.orange.shade800),
+                    const SizedBox(width: 8.0),
+                    const Expanded(
+                      child: Text(
+                        'You are offline. Showing cached scholarships.',
+                        style: TextStyle(
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+            Expanded(
+              child: _buildBody(),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -33,7 +33,35 @@ class Scholarship {
     );
   }
 
+  factory Scholarship.fromMap(Map<String, dynamic> map) {
+    return Scholarship(
+      id: map['id'] as int,
+      name: map['name'] as String,
+      provider: map['provider'] as String,
+      amount: (map['amount'] is int)
+          ? (map['amount'] as int).toDouble()
+          : map['amount'] as double,
+      deadline: map['deadline'] as String,
+      location: map['location'] as String,
+      distance: (map['distance'] is int)
+          ? (map['distance'] as int).toDouble()
+          : map['distance'] as double,
+    );
+  }
+
   Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'provider': provider,
+      'amount': amount,
+      'deadline': deadline,
+      'location': location,
+      'distance': distance,
+    };
+  }
+
+  Map<String, dynamic> toMap() {
     return {
       'id': id,
       'name': name,

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'dart:io';
 import 'package:intl/intl.dart';
 import '../config/app_constants.dart';
 import '../models/scholarship.dart';
+import '../services/scholarship_detail_service.dart';
+import '../services/connectivity_service.dart';
+import '../screens/scholarship_application_screen.dart';
 
 class ScholarshipDetailScreen extends StatefulWidget {
   final int scholarshipId;
@@ -22,11 +23,33 @@ class _ScholarshipDetailScreenState extends State<ScholarshipDetailScreen> {
   bool _isLoading = true;
   String _errorMessage = '';
   Map<String, dynamic>? _scholarshipDetails;
+  bool _isConnected = true;
+  final ConnectivityService _connectivityService = ConnectivityService();
 
   @override
   void initState() {
     super.initState();
+    _checkConnectivity();
     _fetchScholarshipDetails();
+
+    // Listen for connectivity changes
+    _connectivityService.listenToConnectivityChanges((isConnected) {
+      setState(() {
+        _isConnected = isConnected;
+      });
+
+      // Refresh data when connectivity is restored
+      if (isConnected && !_isLoading) {
+        _fetchScholarshipDetails();
+      }
+    });
+  }
+
+  Future<void> _checkConnectivity() async {
+    bool isConnected = await _connectivityService.isConnected();
+    setState(() {
+      _isConnected = isConnected;
+    });
   }
 
   Future<void> _fetchScholarshipDetails() async {
@@ -36,28 +59,17 @@ class _ScholarshipDetailScreenState extends State<ScholarshipDetailScreen> {
     });
 
     try {
-      // Connect to the real API endpoint
-      final uri = Uri.parse(
-          'http://10.0.2.2/ASMSLive/api/scholarships/${widget.scholarshipId}');
-      final client = HttpClient();
-      final request = await client.getUrl(uri);
-      final response = await request.close();
-      final responseBody = await response.transform(utf8.decoder).join();
+      // Use the ScholarshipDetailService which handles offline mode
+      final details = await ScholarshipDetailService.getScholarshipDetails(
+          widget.scholarshipId);
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(responseBody);
-
-        if (data.containsKey('scholarship')) {
-          setState(() {
-            _scholarshipDetails = data['scholarship'];
-            _isLoading = false;
-          });
-        } else {
-          throw Exception('Invalid response format');
-        }
+      if (details != null) {
+        setState(() {
+          _scholarshipDetails = details;
+          _isLoading = false;
+        });
       } else {
-        throw Exception(
-            'Failed to load scholarship details: ${response.statusCode}');
+        throw Exception('Scholarship details not found');
       }
     } catch (e) {
       setState(() {
@@ -73,7 +85,42 @@ class _ScholarshipDetailScreenState extends State<ScholarshipDetailScreen> {
       appBar: AppBar(
         title: const Text('Scholarship Details'),
       ),
-      body: _buildBody(),
+      body: RefreshIndicator(
+        onRefresh: _fetchScholarshipDetails,
+        child: Column(
+          children: [
+            // Network status indicator
+            if (!_isConnected)
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 6.0, horizontal: 12.0),
+                margin: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade100,
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.wifi_off, color: Colors.orange.shade800),
+                    const SizedBox(width: 8.0),
+                    const Expanded(
+                      child: Text(
+                        'You are offline. Limited details may be available.',
+                        style: TextStyle(
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+            Expanded(
+              child: _buildBody(),
+            ),
+          ],
+        ),
+      ),
       bottomNavigationBar: _buildApplyButton(),
     );
   }
@@ -249,10 +296,27 @@ class _ScholarshipDetailScreenState extends State<ScholarshipDetailScreen> {
                 _scholarshipDetails == null
             ? null
             : () {
-                // TODO: Implement application submission
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Application feature coming soon!'),
+                // Navigate to application screen
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ScholarshipApplicationScreen(
+                      scholarship: Scholarship(
+                        id: int.parse(_scholarshipDetails!['ID'].toString()),
+                        name:
+                            _scholarshipDetails!['SchemeName'] ?? 'Scholarship',
+                        provider: _scholarshipDetails!['Organization'] ??
+                            'Unknown Provider',
+                        amount: double.tryParse(
+                                _scholarshipDetails!['ScholarAmount']
+                                        ?.toString() ??
+                                    '0') ??
+                            0.0,
+                        deadline: _scholarshipDetails!['LastDate'] ?? '',
+                        location: _scholarshipDetails!['Category'] ?? '',
+                        distance: 0.0,
+                      ),
+                    ),
                   ),
                 );
               },

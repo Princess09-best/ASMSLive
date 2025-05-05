@@ -1,0 +1,20 @@
+test 
+[2025-05-05 07:05:48] Request received: GET with URI /ASMSLive/direct_insert.php
+[2025-05-05 07:05:48] Request received: GET
+[2025-05-05 07:05:48] Method not allowed: GET
+[2025-05-05 07:07:09] Request received: POST with URI /ASMSLive/direct_insert.php
+[2025-05-05 07:07:09] Request received: POST
+[2025-05-05 07:07:09] Raw input: {"scholarshipId":5,"dateOfBirth":"05\/05\/2000","gender":"Male","category":"Regular","major":"Computer Science","homeAddress":"123 Test Street","studentId":"12345678"}
+[2025-05-05 07:07:09] Received data: {"scholarshipId":5,"dateOfBirth":"05\/05\/2000","gender":"Male","category":"Regular","major":"Computer Science","homeAddress":"123 Test Street","studentId":"12345678"}
+[2025-05-05 07:07:09] Database connection established
+[2025-05-05 07:07:09] Executing SQL: INSERT INTO tblapply(SchemeId, ApplicationNumber, UserID, DateofBirth, Gender, Category, Major, Address, AshesiID, ProfilePic, DocReq) 
+            VALUES (:schemeid, :appnum, :uid, :dob, :gender, :category, :major, :address, :ashesiID, :pic, :doc)
+[2025-05-05 07:07:09] Insert successful. ID: 11, Application Number: 129930630
+[2025-05-05 07:16:57] Request received: POST with URI /ASMSLive/direct_insert.php
+[2025-05-05 07:16:57] Request received: POST
+[2025-05-05 07:16:57] Raw input: {"scholarshipId":6,"dateOfBirth":"05/18/2007","gender":"Male","category":"HighNeed","major":"32qrfea xcz","homeAddress":"23qre xcz","studentId":"88822025"}
+[2025-05-05 07:16:57] Received data: {"scholarshipId":6,"dateOfBirth":"05\/18\/2007","gender":"Male","category":"HighNeed","major":"32qrfea xcz","homeAddress":"23qre xcz","studentId":"88822025"}
+[2025-05-05 07:16:57] Database connection established
+[2025-05-05 07:16:57] Executing SQL: INSERT INTO tblapply(SchemeId, ApplicationNumber, UserID, DateofBirth, Gender, Category, Major, Address, AshesiID, ProfilePic, DocReq) 
+            VALUES (:schemeid, :appnum, :uid, :dob, :gender, :category, :major, :address, :ashesiID, :pic, :doc)
+[2025-05-05 07:16:57] Insert successful. ID: 12, Application Number: 185244269

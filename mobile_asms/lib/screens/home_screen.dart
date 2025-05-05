@@ -2,123 +2,11 @@ import 'package:flutter/material.dart';
 import '../config/app_constants.dart';
 import '../widgets/scholarship_card.dart';
 import 'scholarships_screen.dart';
-import 'dart:convert';
-import 'dart:io';
+import '../services/scholarship_service.dart';
 import '../models/scholarship.dart';
-
-class ScholarshipService {
-  static Future<List<Scholarship>> getScholarships({int limit = 2}) async {
-    try {
-      // Connect to the real API endpoint
-      final uri = Uri.parse('http://10.0.2.2/ASMSLive/api/scholarships');
-      print('Fetching scholarships from: $uri');
-      final client = HttpClient();
-      final request = await client.getUrl(uri);
-      final response = await request.close();
-      final responseBody = await response.transform(utf8.decoder).join();
-
-      print('API Response status: ${response.statusCode}');
-      print(
-          'API Response body (first 100 chars): ${responseBody.substring(0, responseBody.length > 100 ? 100 : responseBody.length)}...');
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(responseBody);
-
-        if (data.containsKey('scholarships')) {
-          final scholarshipsList = data['scholarships'] as List;
-          print(
-              'Found ${scholarshipsList.length} scholarships in API response');
-
-          // Convert API response to Scholarship objects
-          final scholarships = scholarshipsList.map((item) {
-            // Make sure data types match our model
-            return Scholarship(
-              id: item['ID'] is String ? int.parse(item['ID']) : item['ID'],
-              name: item['SchemeName'] ?? 'Unknown Scholarship',
-              provider: item['Organization'] ?? 'Unknown Provider',
-              amount: item['ScholarAmount'] is String
-                  ? double.tryParse(item['ScholarAmount'] ?? '0') ?? 0.0
-                  : (item['ScholarAmount'] ?? 0.0).toDouble(),
-              deadline: item['LastDate'] ?? DateTime.now().toString(),
-              location: item['Category'] ?? 'Ghana',
-              distance: 0.0, // To be calculated later with geolocation
-            );
-          }).toList();
-
-          // Return only requested number of scholarships
-          return scholarships.take(limit).toList();
-        } else {
-          print('API response does not contain "scholarships" key');
-          return _getSampleScholarships().take(limit).toList();
-        }
-      } else {
-        print('API request failed with status: ${response.statusCode}');
-        return _getSampleScholarships().take(limit).toList();
-      }
-    } catch (e) {
-      print('Error fetching scholarships: $e');
-      return _getSampleScholarships().take(limit).toList();
-    }
-  }
-
-  // Fallback sample data
-  static List<Scholarship> _getSampleScholarships() {
-    print('Using sample scholarship data as fallback');
-    return [
-      Scholarship(
-        id: 1,
-        name: 'Engineering Excellence Scholarship',
-        provider: 'TechFoundation',
-        amount: 10000,
-        deadline: '2023-12-15',
-        location: 'Accra, Ghana',
-        distance: 0,
-      ),
-      Scholarship(
-        id: 2,
-        name: 'Future Leaders Scholarship',
-        provider: 'Global Education Fund',
-        amount: 5000,
-        deadline: '2023-11-30',
-        location: 'Accra, Ghana',
-        distance: 0,
-      ),
-      Scholarship(
-        id: 3,
-        name: 'Computer Science Innovation Grant',
-        provider: 'Digital Africa Initiative',
-        amount: 7500,
-        deadline: '2023-10-15',
-        location: 'Kumasi, Ghana',
-        distance: 0,
-      ),
-    ];
-  }
-
-  static Future<int> getTotalScholarships() async {
-    try {
-      final uri = Uri.parse('http://10.0.2.2/ASMSLive/api/scholarships');
-      final client = HttpClient();
-      final request = await client.getUrl(uri);
-      final response = await request.close();
-      final responseBody = await response.transform(utf8.decoder).join();
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(responseBody);
-
-        if (data.containsKey('scholarships')) {
-          final scholarshipsList = data['scholarships'] as List;
-          return scholarshipsList.length;
-        }
-      }
-
-      return 5; // Fallback sample count
-    } catch (e) {
-      print('Error fetching total scholarships: $e');
-      return 5; // Fallback sample count
-    }
-  }
-}
+import '../services/connectivity_service.dart';
+import 'applications_screen.dart';
+import '../services/application_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -139,11 +27,38 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Scholarship> _scholarships = [];
   int _totalScholarships = 0;
   bool _isLoading = true;
+  bool _isConnected = true;
+  final ConnectivityService _connectivityService = ConnectivityService();
+  final GlobalKey<RefreshIndicatorState> _refreshKey =
+      GlobalKey<RefreshIndicatorState>();
 
   @override
   void initState() {
     super.initState();
+    _checkConnectivity();
     _loadData();
+
+    // Listen for connectivity changes
+    _connectivityService.listenToConnectivityChanges((isConnected) {
+      setState(() {
+        _isConnected = isConnected;
+      });
+
+      // Refresh data when connectivity is restored
+      if (isConnected && !_isLoading) {
+        _refreshData();
+      }
+    });
+
+    // Try to sync any pending applications
+    _syncPendingApplications();
+  }
+
+  Future<void> _checkConnectivity() async {
+    bool isConnected = await _connectivityService.isConnected();
+    setState(() {
+      _isConnected = isConnected;
+    });
   }
 
   Future<void> _loadData() async {
@@ -160,6 +75,28 @@ class _HomeScreenState extends State<HomeScreen> {
       _totalScholarships = totalScholarships;
       _isLoading = false;
     });
+  }
+
+  Future<void> _refreshData() async {
+    // Force refresh data from API
+    final scholarships = await ScholarshipService.refreshScholarships(limit: 2);
+    final totalScholarships = await ScholarshipService.getTotalScholarships();
+
+    setState(() {
+      _scholarships = scholarships;
+      _totalScholarships = totalScholarships;
+    });
+  }
+
+  Future<void> _syncPendingApplications() async {
+    try {
+      bool isConnected = await _connectivityService.isConnected();
+      if (isConnected) {
+        await ApplicationService.syncPendingApplications();
+      }
+    } catch (e) {
+      print('Error syncing applications: $e');
+    }
   }
 
   @override
@@ -302,7 +239,12 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: _currentIndex == 0
           ? FloatingActionButton(
               onPressed: () {
-                // TODO: Navigate to scholarship search/filter screen
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ScholarshipsScreen(),
+                  ),
+                );
               },
               backgroundColor: AppConstants.primaryColor,
               child: const Icon(Icons.search, color: Colors.white),
@@ -331,7 +273,7 @@ class _HomeScreenState extends State<HomeScreen> {
       case 0:
         return _buildHomeTab();
       case 1:
-        return _buildApplicationsTab();
+        return const ApplicationsScreen();
       case 2:
         return _buildNearbyTab();
       case 3:
@@ -342,127 +284,151 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHomeTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Welcome message
-          Text(
-            'Welcome back, ${userData['fullName']?.split(' ').first ?? 'User'}!',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
+    return RefreshIndicator(
+      key: _refreshKey,
+      onRefresh: _refreshData,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Network status indicator
+            if (!_isConnected)
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 6.0, horizontal: 12.0),
+                margin: const EdgeInsets.only(bottom: 16.0),
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade100,
+                  borderRadius: BorderRadius.circular(8.0),
                 ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Manage your scholarships easily',
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: AppConstants.textSecondaryColor,
-                ),
-          ),
-          const SizedBox(height: 24),
-
-          // Scholarship Statistics - similar to web dashboard
-          Row(
-            children: [
-              _buildStatCard(
-                context,
-                'Approved Scholarships',
-                '0',
-                Icons.check_circle_outline,
-                Colors.green.shade700,
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              _buildStatCard(
-                context,
-                'Disbursed Scholarships',
-                '0',
-                Icons.attach_money,
-                Colors.blue.shade700,
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              _buildStatCard(
-                context,
-                'Total Available Scholarships',
-                _isLoading ? '...' : _totalScholarships.toString(),
-                Icons.school_outlined,
-                Colors.orange.shade700,
-              ),
-            ],
-          ),
-          const SizedBox(height: 32),
-
-          // Available Scholarships
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Available Scholarships',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ScholarshipsScreen(),
-                    ),
-                  );
-                },
-                child: const Text('View All'),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-
-          // Scholarship cards with real data
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : _scholarships.isEmpty
-                  ? const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Text('No scholarships available at this time.'),
+                child: Row(
+                  children: [
+                    Icon(Icons.wifi_off, color: Colors.orange.shade800),
+                    const SizedBox(width: 8.0),
+                    const Expanded(
+                      child: Text(
+                        'You are offline. Data shown may not be up to date.',
+                        style: TextStyle(
+                          color: Colors.black87,
+                        ),
                       ),
-                    )
-                  : Column(
-                      children: _scholarships.map((scholarship) {
-                        return Column(
-                          children: [
-                            ScholarshipCard(
-                              id: scholarship.id,
-                              name: scholarship.name,
-                              provider: scholarship.provider,
-                              amount: scholarship.amount,
-                              deadline: scholarship.deadline,
-                              location: scholarship.location,
-                              distance: scholarship.distance,
-                            ),
-                            const SizedBox(height: 16),
-                          ],
-                        );
-                      }).toList(),
                     ),
-        ],
-      ),
-    );
-  }
+                  ],
+                ),
+              ),
 
-  Widget _buildApplicationsTab() {
-    // Placeholder for applications tab
-    return const Center(
-      child: Text('My Applications - Coming Soon'),
+            // Welcome message
+            Text(
+              'Welcome back, ${userData['fullName']?.split(' ').first ?? 'User'}!',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Manage your scholarships easily',
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: AppConstants.textSecondaryColor,
+                  ),
+            ),
+            const SizedBox(height: 24),
+
+            // Scholarship Statistics - similar to web dashboard
+            Row(
+              children: [
+                _buildStatCard(
+                  context,
+                  'Approved Scholarships',
+                  '0',
+                  Icons.check_circle_outline,
+                  Colors.green.shade700,
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                _buildStatCard(
+                  context,
+                  'Disbursed Scholarships',
+                  '0',
+                  Icons.attach_money,
+                  Colors.blue.shade700,
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                _buildStatCard(
+                  context,
+                  'Total Available Scholarships',
+                  _isLoading ? '...' : _totalScholarships.toString(),
+                  Icons.school_outlined,
+                  Colors.orange.shade700,
+                ),
+              ],
+            ),
+            const SizedBox(height: 32),
+
+            // Available Scholarships
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Available Scholarships',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ScholarshipsScreen(),
+                      ),
+                    );
+                  },
+                  child: const Text('View All'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+
+            // Scholarship cards with real data
+            _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _scholarships.isEmpty
+                    ? const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child:
+                              Text('No scholarships available at this time.'),
+                        ),
+                      )
+                    : Column(
+                        children: _scholarships.map((scholarship) {
+                          return Column(
+                            children: [
+                              ScholarshipCard(
+                                id: scholarship.id,
+                                name: scholarship.name,
+                                provider: scholarship.provider,
+                                amount: scholarship.amount,
+                                deadline: scholarship.deadline,
+                                location: scholarship.location,
+                                distance: scholarship.distance,
+                              ),
+                              const SizedBox(height: 16),
+                            ],
+                          );
+                        }).toList(),
+                      ),
+          ],
+        ),
+      ),
     );
   }
 

@@ -1,116 +1,144 @@
-import 'package:sqflite/sqflite.dart';
+import 'dart:async';
 import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
 import '../models/scholarship.dart';
 
 class DatabaseHelper {
-  static final DatabaseHelper _instance = DatabaseHelper._internal();
-  factory DatabaseHelper() => _instance;
-  DatabaseHelper._internal();
-
+  static final DatabaseHelper instance = DatabaseHelper._init();
   static Database? _database;
+
+  DatabaseHelper._init();
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDatabase();
+    _database = await _initDB('asms_database.db');
     return _database!;
   }
 
-  Future<Database> _initDatabase() async {
+  Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
-    final path = join(dbPath, 'asms_database.db');
+    final path = join(dbPath, filePath);
 
     return await openDatabase(
       path,
       version: 1,
-      onCreate: _createDb,
+      onCreate: _createDB,
     );
   }
 
-  Future<void> _createDb(Database db, int version) async {
+  Future _createDB(Database db, int version) async {
     await db.execute('''
-      CREATE TABLE scholarships(
-        id INTEGER PRIMARY KEY,
-        name TEXT NOT NULL,
-        provider TEXT,
-        amount REAL,
-        deadline TEXT,
-        location TEXT,
-        distance REAL,
-        lastUpdated TEXT
-      )
+    CREATE TABLE scholarships(
+      id INTEGER PRIMARY KEY,
+      name TEXT NOT NULL,
+      provider TEXT NOT NULL,
+      amount REAL NOT NULL,
+      deadline TEXT NOT NULL,
+      location TEXT NOT NULL,
+      distance REAL NOT NULL,
+      lastUpdated TEXT NOT NULL
+    )
     ''');
   }
 
-  // Scholarships Operations
+  // CRUD Operations for Scholarships
+
+  // Create
   Future<int> insertScholarship(Scholarship scholarship) async {
     final db = await database;
     return await db.insert(
       'scholarships',
-      scholarship.toJson()
-        ..addAll({'lastUpdated': DateTime.now().toIso8601String()}),
+      {
+        'id': scholarship.id,
+        'name': scholarship.name,
+        'provider': scholarship.provider,
+        'amount': scholarship.amount,
+        'deadline': scholarship.deadline,
+        'location': scholarship.location,
+        'distance': scholarship.distance,
+        'lastUpdated': DateTime.now().toIso8601String(),
+      },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
 
-  Future<int> updateScholarship(Scholarship scholarship) async {
+  // Insert multiple scholarships
+  Future<void> insertScholarships(List<Scholarship> scholarships) async {
     final db = await database;
-    return await db.update(
-      'scholarships',
-      scholarship.toJson()
-        ..addAll({'lastUpdated': DateTime.now().toIso8601String()}),
-      where: 'id = ?',
-      whereArgs: [scholarship.id],
-    );
-  }
+    final batch = db.batch();
 
-  Future<List<Scholarship>> getScholarships({int? limit}) async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'scholarships',
-      orderBy: 'deadline ASC',
-      limit: limit,
-    );
-
-    if (maps.isEmpty) {
-      return [];
+    for (var scholarship in scholarships) {
+      batch.insert(
+        'scholarships',
+        {
+          'id': scholarship.id,
+          'name': scholarship.name,
+          'provider': scholarship.provider,
+          'amount': scholarship.amount,
+          'deadline': scholarship.deadline,
+          'location': scholarship.location,
+          'distance': scholarship.distance,
+          'lastUpdated': DateTime.now().toIso8601String(),
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
     }
 
-    return List.generate(maps.length, (i) {
-      return Scholarship(
-        id: maps[i]['id'],
-        name: maps[i]['name'],
-        provider: maps[i]['provider'],
-        amount: maps[i]['amount'],
-        deadline: maps[i]['deadline'],
-        location: maps[i]['location'],
-        distance: maps[i]['distance'],
-      );
-    });
+    await batch.commit();
   }
 
+  // Read
   Future<Scholarship?> getScholarship(int id) async {
     final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
+    final maps = await db.query(
       'scholarships',
       where: 'id = ?',
       whereArgs: [id],
     );
 
-    if (maps.isEmpty) {
-      return null;
+    if (maps.isNotEmpty) {
+      return Scholarship.fromMap(maps.first);
     }
+    return null;
+  }
 
-    return Scholarship(
-      id: maps[0]['id'],
-      name: maps[0]['name'],
-      provider: maps[0]['provider'],
-      amount: maps[0]['amount'],
-      deadline: maps[0]['deadline'],
-      location: maps[0]['location'],
-      distance: maps[0]['distance'],
+  // Read all
+  Future<List<Scholarship>> getAllScholarships() async {
+    final db = await database;
+    final result = await db.query('scholarships');
+    return result.map((json) => Scholarship.fromMap(json)).toList();
+  }
+
+  // Read with limit
+  Future<List<Scholarship>> getScholarshipsWithLimit(int limit) async {
+    final db = await database;
+    final result = await db.query(
+      'scholarships',
+      limit: limit,
+    );
+    return result.map((json) => Scholarship.fromMap(json)).toList();
+  }
+
+  // Update
+  Future<int> updateScholarship(Scholarship scholarship) async {
+    final db = await database;
+    return await db.update(
+      'scholarships',
+      {
+        'name': scholarship.name,
+        'provider': scholarship.provider,
+        'amount': scholarship.amount,
+        'deadline': scholarship.deadline,
+        'location': scholarship.location,
+        'distance': scholarship.distance,
+        'lastUpdated': DateTime.now().toIso8601String(),
+      },
+      where: 'id = ?',
+      whereArgs: [scholarship.id],
     );
   }
 
+  // Delete
   Future<int> deleteScholarship(int id) async {
     final db = await database;
     return await db.delete(
@@ -120,43 +148,22 @@ class DatabaseHelper {
     );
   }
 
-  Future<void> insertAllScholarships(List<Scholarship> scholarships) async {
+  // Delete all
+  Future<int> deleteAllScholarships() async {
     final db = await database;
-    final batch = db.batch();
-
-    for (final scholarship in scholarships) {
-      batch.insert(
-        'scholarships',
-        scholarship.toJson()
-          ..addAll({'lastUpdated': DateTime.now().toIso8601String()}),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-    }
-
-    await batch.commit(noResult: true);
+    return await db.delete('scholarships');
   }
 
-  Future<DateTime?> getLastUpdated() async {
+  // Get count of scholarships
+  Future<int> getScholarshipCount() async {
     final db = await database;
-    final result = await db.rawQuery(
-        'SELECT lastUpdated FROM scholarships ORDER BY lastUpdated DESC LIMIT 1');
-
-    if (result.isEmpty || result.first['lastUpdated'] == null) {
-      return null;
-    }
-
-    return DateTime.parse(result.first['lastUpdated'] as String);
-  }
-
-  Future<int> getScholarshipsCount() async {
-    final db = await database;
-    final result =
-        await db.rawQuery('SELECT COUNT(*) as count FROM scholarships');
+    final result = await db.rawQuery('SELECT COUNT(*) FROM scholarships');
     return Sqflite.firstIntValue(result) ?? 0;
   }
 
-  Future<void> clearAllScholarships() async {
+  // Close the database
+  Future close() async {
     final db = await database;
-    await db.delete('scholarships');
+    db.close();
   }
 }
