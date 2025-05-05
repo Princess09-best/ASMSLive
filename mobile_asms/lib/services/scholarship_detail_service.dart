@@ -73,7 +73,7 @@ class ScholarshipDetailService {
   static Future<Map<String, dynamic>?> _fetchDetailsFromApi(int id) async {
     try {
       // Connect to the real API endpoint
-      final uri = Uri.parse('http://10.0.2.2/ASMSLive/api/scholarships/$id');
+      final uri = Uri.parse('http://172.16.5.8/ASMSLive/api/scholarships/$id');
       print('Fetching scholarship details from: $uri');
       final client = HttpClient();
       final request = await client.getUrl(uri);
