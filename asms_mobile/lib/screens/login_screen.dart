@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:local_auth/local_auth.dart';
 import '../config/app_constants.dart';
 import '../providers/auth_provider.dart';
 import 'register_screen.dart';
@@ -37,7 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final isAvailable = await authProvider.isBiometricAvailable();
     final isEnabled = await authProvider.isBiometricEnabled();
-    
+
     setState(() {
       _biometricsAvailable = isAvailable;
       _biometricsEnabled = isEnabled;
@@ -47,7 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _authenticateWithBiometrics() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final success = await authProvider.authenticateWithBiometrics();
-    
+
     if (success) {
       if (!mounted) return;
       Navigator.pushReplacementNamed(context, '/home');
@@ -61,7 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
         _emailController.text.trim(),
         _passwordController.text,
       );
-      
+
       if (success) {
         if (!mounted) return;
         Navigator.pushReplacementNamed(context, '/home');
@@ -81,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final size = MediaQuery.of(context).size;
-    
+
     return Scaffold(
       backgroundColor: AppConstants.backgroundColor,
       body: SafeArea(
@@ -101,28 +100,28 @@ class _LoginScreenState extends State<LoginScreen> {
                     color: AppConstants.primaryColor,
                   ),
                   const SizedBox(height: 24),
-                  
+
                   // App Title
                   Text(
                     AppConstants.appName,
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: AppConstants.primaryColor,
-                      fontWeight: FontWeight.bold,
-                    ),
+                          color: AppConstants.primaryColor,
+                          fontWeight: FontWeight.bold,
+                        ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
-                  
+
                   // Subtitle
                   Text(
                     'Manage your scholarships easily',
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: AppConstants.textSecondaryColor,
-                    ),
+                          color: AppConstants.textSecondaryColor,
+                        ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 48),
-                  
+
                   // Email Field
                   TextFormField(
                     controller: _emailController,
@@ -136,14 +135,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your email';
                       }
-                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                          .hasMatch(value)) {
                         return 'Please enter a valid email';
                       }
                       return null;
                     },
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Password Field
                   TextFormField(
                     controller: _passwordController,
@@ -154,7 +154,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       prefixIcon: const Icon(Icons.lock_outline),
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                          _obscurePassword
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
                         ),
                         onPressed: () {
                           setState(() {
@@ -174,7 +176,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                   ),
                   const SizedBox(height: 8),
-                  
+
                   // Forgot Password Link
                   Align(
                     alignment: Alignment.centerRight,
@@ -191,7 +193,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  
+
                   // Login Button
                   ElevatedButton(
                     onPressed: authProvider.isLoading ? null : _login,
@@ -207,22 +209,25 @@ class _LoginScreenState extends State<LoginScreen> {
                         : const Text('LOGIN'),
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Biometric Login Button
                   if (_biometricsAvailable)
                     OutlinedButton.icon(
-                      onPressed: _biometricsEnabled ? _authenticateWithBiometrics : null,
+                      onPressed: _biometricsEnabled
+                          ? _authenticateWithBiometrics
+                          : null,
                       icon: const Icon(Icons.fingerprint),
-                      label: Text(_biometricsEnabled 
-                          ? 'Login with biometrics' 
+                      label: Text(_biometricsEnabled
+                          ? 'Login with biometrics'
                           : 'Biometrics available but not enabled'),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppConstants.primaryColor,
-                        side: const BorderSide(color: AppConstants.primaryColor),
+                        side:
+                            const BorderSide(color: AppConstants.primaryColor),
                       ),
                     ),
                   const SizedBox(height: 24),
-                  
+
                   // Register Link
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -249,4 +254,4 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-} 
+}

@@ -156,24 +156,27 @@ class ApplicationService {
 
       // Save to local database
       final db = await _databaseHelper.database;
-      await db.insert('applications', {
-        'id': id,
-        'scholarshipId': scholarshipId,
-        'scholarshipName': scholarshipName,
-        'provider': provider,
-        'amount': amount,
-        'dateOfBirth': dateOfBirth,
-        'gender': gender,
-        'category': category,
-        'major': major,
-        'homeAddress': homeAddress,
-        'studentId': studentId,
-        'status': isSynced == 1 ? 'Submitted' : 'Pending',
-        'appliedDate': timestamp,
-        'passportPhotoPath': passportPhotoPath,
-        'documentPath': documentPath,
-        'isSynced': isSynced,
-      }, conflictAlgorithm: ConflictAlgorithm.replace);
+      await db.insert(
+          'applications',
+          {
+            'id': id,
+            'scholarshipId': scholarshipId,
+            'scholarshipName': scholarshipName,
+            'provider': provider,
+            'amount': amount,
+            'dateOfBirth': dateOfBirth,
+            'gender': gender,
+            'category': category,
+            'major': major,
+            'homeAddress': homeAddress,
+            'studentId': studentId,
+            'status': isSynced == 1 ? 'Submitted' : 'Pending',
+            'appliedDate': timestamp,
+            'passportPhotoPath': passportPhotoPath,
+            'documentPath': documentPath,
+            'isSynced': isSynced,
+          },
+          conflictAlgorithm: ConflictAlgorithm.replace);
 
       return true;
     } catch (e) {
@@ -195,9 +198,9 @@ class ApplicationService {
   }) async {
     try {
       // Direct insert using our temporary PHP script
-      // IMPORTANT: Use 10.0.2.2 instead of localhost for Android emulators to access the host machine
+      // IMPORTANT: Use 192.168.37.5 instead of localhost for Android emulators to access the host machine
       // "localhost" in the emulator refers to the emulator itself, not your computer
-      const String host = "10.0.2.2"; // Hardcoded to prevent any confusion
+      const String host = "192.168.37.5"; // Hardcoded to prevent any confusion
       final url = 'http://$host/ASMSLive/direct_insert.php';
 
       // Prepare request data - match the exact field names from the PHP script
@@ -217,17 +220,17 @@ class ApplicationService {
       // Send the request with timeout
       final response = await http
           .post(
-            Uri.parse(url),
-            headers: {'Content-Type': 'application/json'},
-            body: json.encode(requestData),
-          )
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(requestData),
+      )
           .timeout(
-            const Duration(seconds: 10),
-            onTimeout: () {
-              print('Connection timeout while attempting to reach $url');
-              throw TimeoutException('Connection timed out');
-            },
-          );
+        const Duration(seconds: 10),
+        onTimeout: () {
+          print('Connection timeout while attempting to reach $url');
+          throw TimeoutException('Connection timed out');
+        },
+      );
 
       print('Direct insert response code: ${response.statusCode}');
       print('Direct insert response body: ${response.body}');

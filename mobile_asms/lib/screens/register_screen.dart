@@ -44,7 +44,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
       try {
         final response =
-            await Uri.parse('http://10.0.2.2/ASMSLive/users/register.php');
+            await Uri.parse('http://192.168.37.5/ASMSLive/users/register.php');
         final res = await (await HttpClient().postUrl(response))
           ..headers.contentType = ContentType(
               'application', 'x-www-form-urlencoded',

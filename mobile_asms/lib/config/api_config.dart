@@ -1,6 +1,6 @@
 class ApiConfig {
   // Base URL for API
-  static const String baseUrl = 'http://10.0.2.2/ASMSLive/api';
+  static const String baseUrl = 'http://172.16.5.8/ASMSLive/api';
 
   // Authentication endpoints
   static const String login = '/auth/login';

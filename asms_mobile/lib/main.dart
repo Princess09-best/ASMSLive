@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'services/services.dart';
 
 // Models
-import 'models/models.dart';
 
 // Screens
 import 'screens/login_screen.dart';
@@ -23,11 +22,11 @@ import 'providers/notification_provider.dart';
 void main() async {
   // Ensure Flutter binding is initialized
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize services
   final notificationService = NotificationService();
   await notificationService.initialize();
-  
+
   runApp(
     MultiProvider(
       providers: [
@@ -87,15 +86,18 @@ class MyApp extends StatelessWidget {
         inputDecorationTheme: InputDecorationTheme(
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: AppConstants.textSecondaryColor),
+            borderSide:
+                const BorderSide(color: AppConstants.textSecondaryColor),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: AppConstants.primaryColor, width: 2),
+            borderSide:
+                const BorderSide(color: AppConstants.primaryColor, width: 2),
           ),
           filled: true,
           fillColor: Colors.white,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         ),
         textTheme: const TextTheme(
           headlineLarge: TextStyle(
@@ -115,7 +117,8 @@ class MyApp extends StatelessWidget {
         ),
       ),
       home: FutureBuilder<bool>(
-        future: Provider.of<AuthProvider>(context, listen: false).checkLoginStatus(),
+        future: Provider.of<AuthProvider>(context, listen: false)
+            .checkLoginStatus(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Scaffold(
@@ -126,7 +129,7 @@ class MyApp extends StatelessWidget {
               ),
             );
           }
-          
+
           final isLoggedIn = snapshot.data ?? false;
           return isLoggedIn ? const HomeScreen() : const LoginScreen();
         },

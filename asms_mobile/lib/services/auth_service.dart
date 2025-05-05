@@ -11,7 +11,7 @@ class AuthService {
   final ApiService _apiService = ApiService();
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
   final LocalAuthentication _localAuth = LocalAuthentication();
-  
+
   // Login with email and password
   Future<User> login(String email, String password) async {
     try {
@@ -19,22 +19,23 @@ class AuthService {
         ApiConfig.login,
         {'email': email, 'password': password},
       );
-      
+
       // Store the token
       await _apiService.setToken(response['data']['token']);
-      
+
       // Save user data
       final user = User.fromJson(response['data']['user']);
       await _storeUserData(user);
-      
+
       return user;
     } catch (e) {
       throw Exception('Login failed: $e');
     }
   }
-  
+
   // Register a new user
-  Future<User> register(String fullName, String email, String password, String mobileNumber) async {
+  Future<User> register(String fullName, String email, String password,
+      String mobileNumber) async {
     try {
       final response = await _apiService.post(
         ApiConfig.register,
@@ -45,20 +46,20 @@ class AuthService {
           'mobileNumber': mobileNumber,
         },
       );
-      
+
       // Store the token
       await _apiService.setToken(response['data']['token']);
-      
+
       // Save user data
       final user = User.fromJson(response['data']['user']);
       await _storeUserData(user);
-      
+
       return user;
     } catch (e) {
       throw Exception('Registration failed: $e');
     }
   }
-  
+
   // Logout user
   Future<void> logout() async {
     try {
@@ -71,13 +72,13 @@ class AuthService {
       // Clear token and user data
       await _apiService.removeToken();
       await _secureStorage.delete(key: AppConstants.userInfoKey);
-      
+
       // Clear biometric settings
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(AppConstants.biometricEnabledKey, false);
     }
   }
-  
+
   // Get current user data
   Future<User?> getCurrentUser() async {
     final userJson = await _secureStorage.read(key: AppConstants.userInfoKey);
@@ -86,7 +87,7 @@ class AuthService {
     }
     return null;
   }
-  
+
   // Update user profile
   Future<User> updateProfile(User updatedUser) async {
     try {
@@ -94,17 +95,17 @@ class AuthService {
         ApiConfig.updateProfile,
         updatedUser.toJson(),
       );
-      
+
       // Save updated user data
       final user = User.fromJson(response['data']['user']);
       await _storeUserData(user);
-      
+
       return user;
     } catch (e) {
       throw Exception('Profile update failed: $e');
     }
   }
-  
+
   // Store user data securely
   Future<void> _storeUserData(User user) async {
     await _secureStorage.write(
@@ -112,19 +113,19 @@ class AuthService {
       value: jsonEncode(user.toJson()),
     );
   }
-  
+
   // Check if biometric authentication is available
   Future<bool> isBiometricAvailable() async {
     final canCheckBiometrics = await _localAuth.canCheckBiometrics;
     final isDeviceSupported = await _localAuth.isDeviceSupported();
     return canCheckBiometrics && isDeviceSupported;
   }
-  
+
   // Get available biometric types
   Future<List<BiometricType>> getAvailableBiometrics() async {
     return await _localAuth.getAvailableBiometrics();
   }
-  
+
   // Authenticate using biometrics
   Future<bool> authenticateWithBiometrics() async {
     try {
@@ -140,22 +141,22 @@ class AuthService {
       return false;
     }
   }
-  
+
   // Enable or disable biometric login
   Future<void> setBiometricEnabled(bool enabled) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(AppConstants.biometricEnabledKey, enabled);
   }
-  
+
   // Check if biometric login is enabled
   Future<bool> isBiometricEnabled() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(AppConstants.biometricEnabledKey) ?? false;
   }
-  
+
   // Check if user is logged in
   Future<bool> isLoggedIn() async {
     final token = await _apiService.getToken();
     return token != null && token.isNotEmpty;
   }
-} 
+}

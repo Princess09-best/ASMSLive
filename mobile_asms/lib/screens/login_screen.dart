@@ -35,7 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       try {
         final response =
-            await Uri.parse('http://10.0.2.2/ASMSLive/users/login.php');
+            await Uri.parse('http://172.16.5.8/ASMSLive/users/login.php');
         final res = await (await HttpClient().postUrl(response))
           ..headers.contentType = ContentType(
               'application', 'x-www-form-urlencoded',

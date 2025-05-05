@@ -44,7 +44,7 @@ class ScholarshipService {
   static Future<List<Scholarship>> _fetchFromApi() async {
     try {
       // Connect to the real API endpoint
-      final uri = Uri.parse('http://10.0.2.2/ASMSLive/api/scholarships');
+      final uri = Uri.parse('http://172.16.5.8/ASMSLive/api/scholarships');
       print('Fetching scholarships from: $uri');
       final client = HttpClient();
       final request = await client.getUrl(uri);
@@ -130,7 +130,7 @@ class ScholarshipService {
 
       if (isConnected) {
         // Try to get count from API if connected
-        final uri = Uri.parse('http://10.0.2.2/ASMSLive/api/scholarships');
+        final uri = Uri.parse('http://192.168.37.5/ASMSLive/api/scholarships');
         final client = HttpClient();
         final request = await client.getUrl(uri);
         final response = await request.close();

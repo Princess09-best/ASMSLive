@@ -55,13 +55,15 @@ class AuthProvider extends ChangeNotifier {
   }
 
   // Register a new user
-  Future<bool> register(String fullName, String email, String password, String mobileNumber) async {
+  Future<bool> register(String fullName, String email, String password,
+      String mobileNumber) async {
     _isLoading = true;
     _errorMessage = '';
     notifyListeners();
 
     try {
-      _currentUser = await _authService.register(fullName, email, password, mobileNumber);
+      _currentUser =
+          await _authService.register(fullName, email, password, mobileNumber);
       _isLoading = false;
       notifyListeners();
       return true;
@@ -151,4 +153,4 @@ class AuthProvider extends ChangeNotifier {
     _errorMessage = '';
     notifyListeners();
   }
-} 
+}
