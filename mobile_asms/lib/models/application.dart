@@ -15,6 +15,7 @@ class Application {
   final String passportPhotoPath;
   final String documentPath;
   final String? applicationNumber;
+  final int? userId;
 
   Application({
     required this.id,
@@ -33,6 +34,7 @@ class Application {
     required this.passportPhotoPath,
     required this.documentPath,
     this.applicationNumber,
+    this.userId,
   });
 
   factory Application.fromMap(Map<String, dynamic> map) {
@@ -55,6 +57,7 @@ class Application {
       passportPhotoPath: map['passportPhotoPath'] as String,
       documentPath: map['documentPath'] as String,
       applicationNumber: map['applicationNumber'] as String?,
+      userId: map['userId'] as int?,
     );
   }
 
@@ -76,6 +79,7 @@ class Application {
       'passportPhotoPath': passportPhotoPath,
       'documentPath': documentPath,
       'applicationNumber': applicationNumber,
+      'userId': userId,
     };
   }
 }

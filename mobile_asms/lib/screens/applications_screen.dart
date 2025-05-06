@@ -59,9 +59,14 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
   }
 
   Future<void> _syncPendingApplications() async {
-    if (_isConnected) {
-      await ApplicationService.syncPendingApplications();
-      _loadApplications();
+    try {
+      bool synced = await _connectivityService.syncIfConnected();
+      if (synced) {
+        // Reload applications to show updated status
+        await _loadApplications();
+      }
+    } catch (e) {
+      print('Error syncing applications: $e');
     }
   }
 
@@ -77,13 +82,34 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Applications'),
+        actions: [
+          // Manual sync button
+          if (_hasPendingApplications())
+            IconButton(
+              icon: const Icon(Icons.sync),
+              tooltip: 'Sync pending applications',
+              onPressed: _isConnected
+                  ? () async {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('Syncing pending applications...')),
+                      );
+                      await _syncPendingApplications();
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Sync complete!')),
+                      );
+                    }
+                  : null,
+            ),
+        ],
       ),
       body: RefreshIndicator(
         onRefresh: _refreshApplications,
         child: Column(
           children: [
             // Network status indicator for sync status
-            if (!_isConnected)
+            if (!_isConnected && _hasPendingApplications())
               Container(
                 padding:
                     const EdgeInsets.symmetric(vertical: 6.0, horizontal: 12.0),
@@ -98,7 +124,33 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                     const SizedBox(width: 8.0),
                     const Expanded(
                       child: Text(
-                        'You are offline. Some applications may show as "Pending" until you reconnect.',
+                        'You are offline. Some applications show as "Pending" until you reconnect. Pull down to refresh when back online.',
+                        style: TextStyle(
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+            // Pending applications banner when online
+            if (_isConnected && _hasPendingApplications())
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 6.0, horizontal: 12.0),
+                margin: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade100,
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.sync, color: Colors.blue.shade800),
+                    const SizedBox(width: 8.0),
+                    const Expanded(
+                      child: Text(
+                        'You have pending applications that need to be synced. Tap the sync button to submit them.',
                         style: TextStyle(
                           color: Colors.black87,
                         ),
@@ -354,5 +406,10 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
       size: 32,
       color: Colors.grey,
     );
+  }
+
+  // Check if there are any pending applications
+  bool _hasPendingApplications() {
+    return _applications.any((app) => app.status.toLowerCase() == 'pending');
   }
 }

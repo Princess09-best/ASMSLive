@@ -643,9 +643,11 @@ class ApplicationService {
       bool isConnected = await _connectivityService.isConnected();
 
       if (!isConnected) {
+        print('Not connected to the internet. Skipping sync.');
         return;
       }
 
+      print('Starting to sync pending applications...');
       await initApplicationDatabase();
 
       final db = await _databaseHelper.database;
@@ -655,52 +657,94 @@ class ApplicationService {
         whereArgs: [0],
       );
 
+      print('Found ${result.length} pending applications to sync');
+
+      if (result.isEmpty) {
+        print('No pending applications to sync');
+        return;
+      }
+
       for (var map in result) {
         final application = Application.fromMap(map);
+        print('Attempting to sync application ID: ${application.id}');
 
         // Try to upload application to the backend
         bool success = false;
 
         try {
+          // First try API method
+          print('Trying API submission for application ID: ${application.id}');
           // Create multipart request
           final token = await _apiService.getToken();
           if (token == null) {
             print('Error: No authentication token found');
-            continue;
+            // Continue to direct DB method
+          } else {
+            final url = '${ApiConfig.baseUrl}${ApiConfig.submitApplication}';
+
+            // Prepare request body with lowercase field names as expected by backend
+            final Map<String, dynamic> requestBody = {
+              'schemeId': application.scholarshipId,
+              'dateOfBirth': application.dateOfBirth,
+              'gender': application.gender,
+              'category': application.category,
+              'major': application.major,
+              'address': application.homeAddress,
+              'ashesiId': application.studentId,
+              'userId': application.userId,
+            };
+
+            // Send the request as JSON
+            print('Sending API request to: $url');
+            final response = await http.post(
+              Uri.parse(url),
+              headers: {
+                'Authorization': 'Bearer $token',
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+              },
+              body: json.encode(requestBody),
+            );
+
+            success = response.statusCode >= 200 && response.statusCode < 300;
+
+            if (success) {
+              print(
+                  'Successfully synced application ID: ${application.id} via API');
+            } else {
+              print(
+                'Failed to sync application ID: ${application.id} via API. Status: ${response.statusCode}',
+              );
+            }
           }
 
-          final url = '${ApiConfig.baseUrl}${ApiConfig.submitApplication}';
+          // If API method fails, try direct database insertion
+          if (!success) {
+            print('API submission failed, trying direct database insertion...');
+            try {
+              final result = await _submitDirectlyToDatabaseWithResult(
+                scholarshipId: application.scholarshipId,
+                dateOfBirth: application.dateOfBirth,
+                gender: application.gender,
+                category: application.category,
+                major: application.major,
+                homeAddress: application.homeAddress,
+                studentId: application.studentId,
+                userId: application.userId,
+              );
 
-          // Prepare request body with lowercase field names as expected by backend
-          final Map<String, dynamic> requestBody = {
-            'schemeId': application.scholarshipId,
-            'dateOfBirth': application.dateOfBirth,
-            'gender': application.gender,
-            'category': application.category,
-            'major': application.major,
-            'address': application.homeAddress,
-            'ashesiId': application.studentId,
-          };
-
-          // Send the request as JSON
-          final response = await http.post(
-            Uri.parse(url),
-            headers: {
-              'Authorization': 'Bearer $token',
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-            },
-            body: json.encode(requestBody),
-          );
-
-          success = response.statusCode >= 200 && response.statusCode < 300;
-
-          if (success) {
-            print('Successfully synced application ID: ${application.id}');
-          } else {
-            print(
-              'Failed to sync application ID: ${application.id}. Status: ${response.statusCode}',
-            );
+              success = result.success;
+              if (success) {
+                print(
+                    'Successfully synced application ID: ${application.id} via direct DB insertion');
+              } else {
+                print(
+                    'Failed to sync application ID: ${application.id} via direct DB insertion');
+              }
+            } catch (e) {
+              print(
+                  'Error with direct DB insert for application ID: ${application.id}: $e');
+            }
           }
         } catch (e) {
           print('Error syncing application ID: ${application.id}: $e');
@@ -714,8 +758,15 @@ class ApplicationService {
             where: 'id = ?',
             whereArgs: [application.id],
           );
+          print(
+              'Updated local database for application ID: ${application.id} - marked as synced');
+        } else {
+          print(
+              'Failed to sync application ID: ${application.id} - remains pending');
         }
       }
+
+      print('Finished syncing pending applications');
     } catch (e) {
       print('Error syncing pending applications: $e');
     }
