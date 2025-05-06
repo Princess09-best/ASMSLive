@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/user_model.dart';
 import '../services/auth_service.dart';
+import 'dart:convert';
+import 'dart:io';
 
 class AuthProvider extends ChangeNotifier {
   final AuthService _authService = AuthService();
@@ -22,7 +24,24 @@ class AuthProvider extends ChangeNotifier {
     try {
       final isLoggedIn = await _authService.isLoggedIn();
       if (isLoggedIn) {
+        // For the legacy PHP backend, we need to read the stored user data
         _currentUser = await _authService.getCurrentUser();
+
+        // If we have a username but need to refresh from server
+        if (_currentUser != null && _currentUser!.email.isNotEmpty) {
+          try {
+            // Try to refresh user data from server
+            final refreshedUser =
+                await _fetchUserDataFromServer(_currentUser!.email);
+            if (refreshedUser != null) {
+              _currentUser = refreshedUser;
+              await _authService.storeUserData(refreshedUser);
+            }
+          } catch (e) {
+            // Ignore refresh errors, use stored data
+            print('Error refreshing user data: $e');
+          }
+        }
       }
       _isLoading = false;
       notifyListeners();
@@ -33,6 +52,49 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       return false;
     }
+  }
+
+  // Fetch user data from the PHP backend
+  Future<User?> _fetchUserDataFromServer(String username) async {
+    try {
+      // This function would typically use your API service
+      // But for the legacy PHP backend, we need to use direct HTTP
+      final userDataUrl =
+          Uri.parse('http://172.16.5.8/ASMSLive/users/get_user_data.php');
+      final request = await HttpClient().postUrl(userDataUrl);
+      request.headers.contentType =
+          ContentType('application', 'x-www-form-urlencoded', charset: 'utf-8');
+      request.write(Uri(queryParameters: {
+        'username': username,
+      }).query);
+
+      final userDataResponse = await request.close();
+      final userDataBody =
+          await userDataResponse.transform(const Utf8Decoder()).join();
+
+      // Attempt to parse user data
+      final userData = jsonDecode(userDataBody);
+      if (userData != null && userData['success'] == true) {
+        // Create user model
+        return User(
+          id: userData['id'],
+          fullName: userData['fullName'],
+          email: userData['email'],
+          mobileNumber: userData['mobileNumber'],
+        );
+      }
+    } catch (e) {
+      print('Error fetching user data from server: $e');
+    }
+    return null;
+  }
+
+  // Set current user directly (for legacy login)
+  void setUser(User user) {
+    _currentUser = user;
+    // Store user in secure storage for persistence
+    _authService.storeUserData(user);
+    notifyListeners();
   }
 
   // Login with email and password
@@ -55,13 +117,15 @@ class AuthProvider extends ChangeNotifier {
   }
 
   // Register a new user
-  Future<bool> register(String fullName, String email, String password, String mobileNumber) async {
+  Future<bool> register(String fullName, String email, String password,
+      String mobileNumber) async {
     _isLoading = true;
     _errorMessage = '';
     notifyListeners();
 
     try {
-      _currentUser = await _authService.register(fullName, email, password, mobileNumber);
+      _currentUser =
+          await _authService.register(fullName, email, password, mobileNumber);
       _isLoading = false;
       notifyListeners();
       return true;
@@ -151,4 +215,4 @@ class AuthProvider extends ChangeNotifier {
     _errorMessage = '';
     notifyListeners();
   }
-} 
+}

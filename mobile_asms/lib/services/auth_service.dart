@@ -25,7 +25,7 @@ class AuthService {
 
       // Save user data
       final user = User.fromJson(response['data']['user']);
-      await _storeUserData(user);
+      await storeUserData(user);
 
       return user;
     } catch (e) {
@@ -52,7 +52,7 @@ class AuthService {
 
       // Save user data
       final user = User.fromJson(response['data']['user']);
-      await _storeUserData(user);
+      await storeUserData(user);
 
       return user;
     } catch (e) {
@@ -98,7 +98,7 @@ class AuthService {
 
       // Save updated user data
       final user = User.fromJson(response['data']['user']);
-      await _storeUserData(user);
+      await storeUserData(user);
 
       return user;
     } catch (e) {
@@ -107,7 +107,7 @@ class AuthService {
   }
 
   // Store user data securely
-  Future<void> _storeUserData(User user) async {
+  Future<void> storeUserData(User user) async {
     await _secureStorage.write(
       key: AppConstants.userInfoKey,
       value: jsonEncode(user.toJson()),

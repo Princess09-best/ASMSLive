@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../config/app_constants.dart';
 import '../widgets/scholarship_card.dart';
 import 'scholarships_screen.dart';
@@ -7,6 +8,7 @@ import '../models/scholarship.dart';
 import '../services/connectivity_service.dart';
 import 'applications_screen.dart';
 import '../services/application_service.dart';
+import '../providers/auth_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,12 +19,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
-  // Simple user data without Provider
-  final Map<String, String> userData = {
-    'fullName': 'ASMS User',
-    'email': 'user@example.com'
-  };
-
   // Scholarship data
   List<Scholarship> _scholarships = [];
   int _totalScholarships = 0;
@@ -101,6 +97,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Get current user from AuthProvider
+    final authProvider = Provider.of<AuthProvider>(context);
+    final user = authProvider.currentUser;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(_getAppBarTitle()),
@@ -119,13 +119,13 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: EdgeInsets.zero,
           children: [
             UserAccountsDrawerHeader(
-              accountName: Text(userData['fullName'] ?? 'User'),
-              accountEmail: Text(userData['email'] ?? 'user@example.com'),
+              accountName: Text(user?.fullName ?? 'User'),
+              accountEmail: Text(user?.email ?? 'user@example.com'),
               currentAccountPicture: CircleAvatar(
                 backgroundColor: Colors.white,
                 child: Text(
-                  (userData['fullName']?.isNotEmpty == true)
-                      ? userData['fullName']![0].toUpperCase()
+                  (user?.fullName?.isNotEmpty == true)
+                      ? user!.fullName![0].toUpperCase()
                       : 'U',
                   style: const TextStyle(
                     fontSize: 24,
@@ -204,9 +204,12 @@ class _HomeScreenState extends State<HomeScreen> {
             ListTile(
               leading: const Icon(Icons.exit_to_app),
               title: const Text('Logout'),
-              onTap: () {
+              onTap: () async {
                 Navigator.pop(context);
-                // Simplified logout - just navigate back to login
+                // Use AuthProvider to handle logout
+                final authProvider =
+                    Provider.of<AuthProvider>(context, listen: false);
+                await authProvider.logout();
                 Navigator.pushReplacementNamed(context, '/login');
               },
             ),
@@ -293,6 +296,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHomeTab() {
+    // Get current user from AuthProvider
+    final authProvider = Provider.of<AuthProvider>(context);
+    final user = authProvider.currentUser;
+
     return RefreshIndicator(
       key: _refreshKey,
       onRefresh: _refreshData,
@@ -329,7 +336,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             // Welcome message
             Text(
-              'Welcome back, ${userData['fullName']?.split(' ').first ?? 'User'}!',
+              'Welcome back, ${user?.fullName.split(' ').first ?? 'User'}!',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -449,6 +456,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildProfileTab() {
+    // Get current user from AuthProvider
+    final authProvider = Provider.of<AuthProvider>(context);
+    final user = authProvider.currentUser;
+
     // Placeholder for profile tab
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -459,8 +470,8 @@ class _HomeScreenState extends State<HomeScreen> {
             radius: 50,
             backgroundColor: AppConstants.primaryColor.withOpacity(0.1),
             child: Text(
-              (userData['fullName']?.isNotEmpty == true)
-                  ? userData['fullName']![0].toUpperCase()
+              (user?.fullName.isNotEmpty == true)
+                  ? user!.fullName[0].toUpperCase()
                   : 'U',
               style: const TextStyle(
                 fontSize: 40,
@@ -473,7 +484,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
           // User name
           Text(
-            userData['fullName'] ?? 'User Name',
+            user?.fullName ?? 'User Name',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -482,7 +493,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
           // Email
           Text(
-            userData['email'] ?? 'email@example.com',
+            user?.email ?? 'email@example.com',
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: AppConstants.textSecondaryColor,
                 ),
@@ -514,6 +525,45 @@ class _HomeScreenState extends State<HomeScreen> {
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
               // TODO: Navigate to notification settings
+            },
+          ),
+          const Divider(),
+          // Add a refresh data button
+          ListTile(
+            leading: const Icon(Icons.refresh),
+            title: const Text('Refresh User Data'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () async {
+              // Show loading indicator
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Refreshing user data...')),
+              );
+
+              try {
+                // Refresh user data by checking login status
+                final refreshed = await authProvider.checkLoginStatus();
+
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(refreshed
+                        ? 'User data refreshed successfully!'
+                        : 'Failed to refresh user data.'),
+                    backgroundColor: refreshed ? Colors.green : Colors.red,
+                  ),
+                );
+
+                // Force a rebuild of the screen
+                setState(() {});
+              } catch (e) {
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Error: $e'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
             },
           ),
         ],
