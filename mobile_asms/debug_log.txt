@@ -5,3 +5,20 @@
 [2025-05-06 08:17:54] Executing SQL: INSERT INTO tblapply(SchemeId, ApplicationNumber, UserID, DateofBirth, Gender, Category, Major, Address, AshesiID, ProfilePic, DocReq, Status, ApplyDate) 
             VALUES (:schemeid, :appnum, :uid, :dob, :gender, :category, :major, :address, :ashesiID, :pic, :doc, '0', NOW())
 [2025-05-06 08:17:54] Insert successful. ID: 15, Application Number: APP1746512274530
+[2025-05-06 08:55:07] Request received: POST with URI /ASMSLive/mobile_asms/direct_insert.php
+[2025-05-06 08:55:07] Raw input: {"schemeId":6,"dateOfBirth":"05/30/2007","gender":"Male","category":"HighNeed","major":"hhhhhgg","address":"Yyhhhhhh","ashesiId":"88822025","pic":"default_profile.jpg","doc":"default_document.pdf"}
+[2025-05-06 08:55:07] Received data: {"schemeId":6,"dateOfBirth":"05\/30\/2007","gender":"Male","category":"HighNeed","major":"hhhhhgg","address":"Yyhhhhhh","ashesiId":"88822025","pic":"default_profile.jpg","doc":"default_document.pdf"}
+[2025-05-06 08:55:07] Database connection established
+[2025-05-06 08:55:07] Executing SQL: INSERT INTO tblapply(SchemeId, ApplicationNumber, UserID, DateofBirth, Gender, Category, Major, Address, AshesiID, ProfilePic, DocReq, Status, ApplyDate) 
+            VALUES (:schemeid, :appnum, :uid, :dob, :gender, :category, :major, :address, :ashesiID, :pic, :doc, '0', NOW())
+[2025-05-06 08:55:07] Insert successful. ID: 16, Application Number: APP1746514507476
+[2025-05-06 09:05:19] Request received: POST with URI /ASMSLive/mobile_asms/direct_insert.php
+[2025-05-06 09:05:19] Raw input: {"schemeId":6,"dateOfBirth":"05/31/2007","gender":"Female","category":"HighNeed","major":"222222222","address":"Weeeeewwww","ashesiId":"12345678","pic":"default_profile.jpg","doc":"default_document.pdf"}
+[2025-05-06 09:05:19] Received data: {"schemeId":6,"dateOfBirth":"05\/31\/2007","gender":"Female","category":"HighNeed","major":"222222222","address":"Weeeeewwww","ashesiId":"12345678","pic":"default_profile.jpg","doc":"default_document.pdf"}
+[2025-05-06 09:05:19] Original date: 05/31/2007
+[2025-05-06 09:05:19] Converted date to: 2007-05-31
+[2025-05-06 09:05:19] Database connection established
+[2025-05-06 09:05:19] Executing SQL: INSERT INTO tblapply(SchemeId, ApplicationNumber, UserID, DateofBirth, Gender, Category, Major, Address, AshesiID, ProfilePic, DocReq, Status, ApplyDate) 
+            VALUES (:schemeid, :appnum, :uid, :dob, :gender, :category, :major, :address, :ashesiID, :pic, :doc, '0', NOW())
+[2025-05-06 09:05:19] Parameters: SchemeId=6, DateofBirth=2007-05-31, Gender=Female, Category=HighNeed, Major=222222222, Address=Weeeeewwww, AshesiID=12345678
+[2025-05-06 09:05:19] Insert successful. ID: 17, Application Number: APP1746515119473

@@ -70,6 +70,26 @@ try {
         exit;
     }
     
+    // Convert date from MM/dd/yyyy to YYYY-MM-DD format for MySQL
+    try {
+        debug_log("Original date: " . $dateOfBirth);
+        if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $dateOfBirth)) {
+            // Format is MM/DD/YYYY
+            $date = DateTime::createFromFormat('m/d/Y', $dateOfBirth);
+            if ($date) {
+                $dateOfBirth = $date->format('Y-m-d');
+                debug_log("Converted date to: " . $dateOfBirth);
+            } else {
+                debug_log("Failed to parse date: " . $dateOfBirth);
+            }
+        } else {
+            debug_log("Date format doesn't match MM/DD/YYYY pattern: " . $dateOfBirth);
+        }
+    } catch (Exception $e) {
+        debug_log("Error converting date: " . $e->getMessage());
+        // Keep original date if conversion fails
+    }
+    
     // Create database connection
     $conn = new PDO("mysql:host=$host;dbname=$db_name", $username, $password);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -86,6 +106,9 @@ try {
             VALUES (:schemeid, :appnum, :uid, :dob, :gender, :category, :major, :address, :ashesiID, :pic, :doc, '0', NOW())";
             
     debug_log("Executing SQL: " . $sql);
+    debug_log("Parameters: SchemeId=" . $schemeId . ", DateofBirth=" . $dateOfBirth . 
+             ", Gender=" . $gender . ", Category=" . $category . ", Major=" . $major . 
+             ", Address=" . $address . ", AshesiID=" . $ashesiId);
     
     $stmt = $conn->prepare($sql);
     
