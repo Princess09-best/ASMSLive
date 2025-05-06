@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import '../config/app_constants.dart';
 import '../models/scholarship.dart';
 import '../services/application_service.dart';
+import '../services/camera_service.dart';
 
 class ScholarshipApplicationScreen extends StatefulWidget {
   final Scholarship scholarship;
@@ -62,15 +63,12 @@ class _ScholarshipApplicationScreenState
 
   Future<void> _pickPassportPhoto() async {
     try {
-      final pickedFile = await ImagePicker().pickImage(
-        source: ImageSource.gallery,
-        maxWidth: 600,
-        maxHeight: 600,
-      );
+      final cameraService = CameraService();
+      final File? photo = await cameraService.showImagePickerDialog(context);
 
-      if (pickedFile != null) {
+      if (photo != null) {
         setState(() {
-          _passportPhoto = File(pickedFile.path);
+          _passportPhoto = photo;
         });
       }
     } catch (e) {
@@ -88,6 +86,8 @@ class _ScholarshipApplicationScreenState
 
   Future<void> _pickRequiredDocument() async {
     try {
+      final cameraService = CameraService();
+
       // Show option dialog for document selection
       showModalBottomSheet(
         context: context,
@@ -96,40 +96,47 @@ class _ScholarshipApplicationScreenState
             child: Wrap(
               children: <Widget>[
                 ListTile(
-                  leading: const Icon(Icons.image),
-                  title: const Text('Pick from Gallery'),
+                  leading: const Icon(Icons.camera_alt),
+                  title: const Text('Take Photo of Document'),
                   onTap: () async {
                     Navigator.of(context).pop();
-                    final pickedFile = await ImagePicker().pickImage(
-                      source: ImageSource.gallery,
+                    // Use CameraService to take a document photo
+                    final File? file = await cameraService.takePhoto(
+                      maxWidth: 1600,
+                      maxHeight: 1600,
+                      imageQuality: 90,
                     );
 
-                    if (pickedFile != null) {
-                      final File file = File(pickedFile.path);
-                      if (!_isValidDocumentType(file)) {
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                  'Please select a PDF, DOC, or DOCX file'),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        }
-                      } else {
-                        setState(() {
-                          _requiredDocument = file;
-                        });
-                      }
+                    if (file != null) {
+                      setState(() {
+                        _requiredDocument = file;
+                      });
                     }
                   },
                 ),
                 ListTile(
-                  leading: const Icon(Icons.file_present),
-                  title: const Text('Pick Document'),
+                  leading: const Icon(Icons.image),
+                  title: const Text('Pick from Gallery'),
                   onTap: () async {
                     Navigator.of(context).pop();
-                    _pickDocumentFile();
+                    final File? file = await cameraService.pickImage(
+                      maxWidth: 1600,
+                      imageQuality: 90,
+                    );
+
+                    if (file != null && _isValidDocumentType(file)) {
+                      setState(() {
+                        _requiredDocument = file;
+                      });
+                    } else if (file != null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content:
+                              Text('Please select a PDF, DOC, or DOCX file'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
                   },
                 ),
                 ListTile(
@@ -145,39 +152,6 @@ class _ScholarshipApplicationScreenState
           );
         },
       );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error picking document: $e')),
-      );
-    }
-  }
-
-  Future<void> _pickDocumentFile() async {
-    try {
-      // Use image_picker instead of file_picker
-      final pickedFile = await ImagePicker().pickImage(
-        source: ImageSource.gallery,
-      );
-
-      if (pickedFile != null) {
-        File file = File(pickedFile.path);
-
-        // Check if file has valid extension
-        if (_isValidDocumentType(file)) {
-          setState(() {
-            _requiredDocument = file;
-          });
-        } else {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Please select a PDF, DOC, or DOCX file'),
-                backgroundColor: Colors.red,
-              ),
-            );
-          }
-        }
-      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error picking document: $e')),

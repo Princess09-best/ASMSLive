@@ -183,6 +183,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 Navigator.pop(context);
               },
             ),
+            // Add Camera Test option
+            ListTile(
+              leading: const Icon(Icons.camera_alt_outlined),
+              title: const Text('Camera Test'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/camera_test');
+              },
+            ),
             const Divider(),
             ListTile(
               leading: const Icon(Icons.settings_outlined),

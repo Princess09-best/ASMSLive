@@ -47,5 +47,13 @@
 		<true/>
 		<key>UIStatusBarHidden</key>
 		<false/>
+		
+		<!-- Camera and Photos permissions -->
+		<key>NSCameraUsageDescription</key>
+		<string>This app needs camera access to take passport photos and scan documents</string>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>This app needs photos access to upload passport photos and documents</string>
+		<key>NSMicrophoneUsageDescription</key>
+		<string>This app needs microphone access for video recording</string>
 	</dict>
 </plist>

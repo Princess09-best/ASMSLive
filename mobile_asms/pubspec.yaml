@@ -37,6 +37,8 @@ dependencies:
   path: ^1.8.3
   connectivity_plus: ^6.1.4
   path_provider: ^2.0.14
+  file_picker: ^10.1.2  # Using latest version for document selection
+  permission_handler: ^11.0.0  # Updated to latest version
   
   # API and State Management
   provider: ^6.1.1    # For state management

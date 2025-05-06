@@ -4,8 +4,8 @@ import '../services/camera_service.dart';
 import '../config/app_constants.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart' as path;
+import 'package:file_picker/file_picker.dart';
 
 class CameraTestScreen extends StatefulWidget {
   const CameraTestScreen({Key? key}) : super(key: key);
@@ -118,17 +118,25 @@ class _CameraTestScreenState extends State<CameraTestScreen> {
         _documentFileInfo = 'Attempting to open file picker...';
       });
 
+      // Use file_picker to select document files
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['pdf', 'doc', 'docx'],
+        allowMultiple: false,
       );
 
       if (result != null && result.files.isNotEmpty) {
-        String? filePath = result.files.single.path;
-        setState(() {
-          _documentFile = File(filePath);
-          _documentFileInfo = 'Success! File path: ${filePath}';
-        });
+        String? filePath = result.files.first.path;
+        if (filePath != null) {
+          setState(() {
+            _documentFile = File(filePath);
+            _documentFileInfo = 'Success! Document path: $filePath';
+          });
+        } else {
+          setState(() {
+            _documentFileInfo = 'Error: File path is null';
+          });
+        }
       } else {
         setState(() {
           _documentFileInfo =
