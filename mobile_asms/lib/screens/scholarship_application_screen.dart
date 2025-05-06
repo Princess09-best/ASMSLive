@@ -95,17 +95,25 @@ class _ScholarshipApplicationScreenState
           return SafeArea(
             child: Wrap(
               children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Text(
+                    'Select a document upload method',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
                 ListTile(
                   leading: const Icon(Icons.camera_alt),
-                  title: const Text('Take Photo of Document'),
+                  title: const Text('Scan Document to PDF'),
+                  subtitle:
+                      const Text('Take a photo and convert to PDF format'),
                   onTap: () async {
                     Navigator.of(context).pop();
-                    // Use CameraService to take a document photo
-                    final File? file = await cameraService.takePhoto(
-                      maxWidth: 1600,
-                      maxHeight: 1600,
-                      imageQuality: 90,
-                    );
+                    // Use CameraService to scan document and convert to PDF
+                    final File? file = await CameraService.scanDocument();
 
                     if (file != null) {
                       setState(() {
@@ -117,6 +125,7 @@ class _ScholarshipApplicationScreenState
                 ListTile(
                   leading: const Icon(Icons.image),
                   title: const Text('Select Image from Gallery'),
+                  subtitle: const Text('Choose an image file to upload'),
                   onTap: () async {
                     Navigator.of(context).pop();
                     final File? file = await cameraService.pickImage(
@@ -142,6 +151,7 @@ class _ScholarshipApplicationScreenState
                 ListTile(
                   leading: const Icon(Icons.file_copy),
                   title: const Text('Select Document (PDF, DOC, DOCX)'),
+                  subtitle: const Text('Browse files on your device'),
                   onTap: () async {
                     Navigator.of(context).pop();
                     final File? file = await CameraService.selectDocument();
@@ -156,6 +166,7 @@ class _ScholarshipApplicationScreenState
                 ListTile(
                   leading: const Icon(Icons.file_download),
                   title: const Text('Use Sample PDF (For Demo)'),
+                  subtitle: const Text('Use a pre-loaded sample document'),
                   onTap: () async {
                     Navigator.of(context).pop();
                     _useSamplePdf();

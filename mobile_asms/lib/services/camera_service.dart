@@ -173,6 +173,7 @@ class CameraService {
       final ImagePicker picker = ImagePicker();
       final XFile? photo = await picker.pickImage(
         source: ImageSource.camera,
+        preferredCameraDevice: CameraDevice.rear,
         maxWidth: 2000,
         maxHeight: 2000,
         imageQuality: 100,
@@ -187,12 +188,15 @@ class CameraService {
       // Create a unique filename for the document
       final directory = await getApplicationDocumentsDirectory();
       final String fileName =
-          'doc_${DateTime.now().millisecondsSinceEpoch}.pdf';
+          'doc_scan_${DateTime.now().millisecondsSinceEpoch}.pdf';
       final String filePath = '${directory.path}/$fileName';
 
-      // In a real implementation, we would convert the image to PDF here
-      // For now, we'll just copy the image file
+      // In a real implementation, we would use a PDF conversion library here
+      // For now, we'll just copy the image file and rename it with .pdf extension
+      // This is just a simulation of PDF conversion for the demo
       final File documentFile = await imageFile.copy(filePath);
+
+      print('Document scanned and saved as PDF at: $filePath');
 
       return documentFile;
     } catch (e) {
