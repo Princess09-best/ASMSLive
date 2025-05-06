@@ -95,8 +95,9 @@ try {
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     debug_log("Database connection established");
     
-    // Generate application number
-    $application_number = 'APP' . time() . rand(100, 999);
+    // Generate application number - MATCH WEB VERSION FORMAT
+    $application_number = mt_rand(100000000, 999999999);
+    debug_log("Generated application number: " . $application_number);
     
     // Default user ID for testing
     $user_id = 1;
@@ -137,7 +138,7 @@ try {
     http_response_code(200);
     echo json_encode([
         "success" => true,
-        "message" => "Application submitted successfully",
+        "message" => "Your application has been sent successfully. Application Number is " . $application_number,
         "applicationId" => $last_id,
         "applicationNumber" => $application_number
     ]);

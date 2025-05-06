@@ -250,7 +250,7 @@ class _ScholarshipApplicationScreenState
       });
 
       // Submit application using the ApplicationService
-      final success = await ApplicationService.submitApplication(
+      final result = await ApplicationService.submitApplicationWithResult(
         scholarshipId: widget.scholarship.id,
         scholarshipName: widget.scholarship.name,
         provider: widget.scholarship.provider,
@@ -270,16 +270,17 @@ class _ScholarshipApplicationScreenState
           _isSubmitting = false;
         });
 
-        if (success) {
-          // Show success dialog
+        if (result.success) {
+          // Show success dialog with application number
           showDialog(
             context: context,
             barrierDismissible: false,
             builder: (BuildContext context) {
               return AlertDialog(
                 title: const Text('Application Submitted'),
-                content: const Text(
-                  'Your application has been submitted successfully. You can track its status in the Applications tab.',
+                content: Text(
+                  result.message ??
+                      'Your application has been submitted successfully. You can track its status in the Applications tab.',
                 ),
                 actions: [
                   TextButton(

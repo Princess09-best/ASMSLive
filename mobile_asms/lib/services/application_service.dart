@@ -14,6 +14,16 @@ import '../services/api_service.dart';
 import '../config/app_constants.dart';
 import '../config/api_config.dart';
 
+// Class to hold application submission result
+class ApplicationSubmissionResult {
+  final bool success;
+  final String? message;
+  final String? applicationNumber;
+
+  ApplicationSubmissionResult(
+      {required this.success, this.message, this.applicationNumber});
+}
+
 class ApplicationService {
   static final ConnectivityService _connectivityService = ConnectivityService();
   static final DatabaseHelper _databaseHelper = DatabaseHelper.instance;
@@ -46,9 +56,27 @@ class ApplicationService {
         appliedDate TEXT NOT NULL,
         passportPhotoPath TEXT NOT NULL,
         documentPath TEXT NOT NULL,
+        applicationNumber TEXT,
         isSynced INTEGER NOT NULL
       )
       ''');
+    } else {
+      // Check if applicationNumber column exists, add it if it doesn't
+      final columns = await db.rawQuery("PRAGMA table_info(applications)");
+      bool hasApplicationNumber = false;
+      for (var col in columns) {
+        if (col['name'] == 'applicationNumber') {
+          hasApplicationNumber = true;
+          break;
+        }
+      }
+
+      // Add applicationNumber column if it doesn't exist
+      if (!hasApplicationNumber) {
+        await db.execute(
+            'ALTER TABLE applications ADD COLUMN applicationNumber TEXT');
+        print('Added applicationNumber column to applications table');
+      }
     }
   }
 
@@ -67,8 +95,8 @@ class ApplicationService {
     return extension == '.pdf' || extension == '.doc' || extension == '.docx';
   }
 
-  // Submit application
-  static Future<bool> submitApplication({
+  // Submit application - enhanced version that returns result with message
+  static Future<ApplicationSubmissionResult> submitApplicationWithResult({
     required int scholarshipId,
     required String scholarshipName,
     required String provider,
@@ -88,7 +116,11 @@ class ApplicationService {
         print(
           'Invalid document type. Only PDF, DOC, or DOCX files are allowed',
         );
-        return false;
+        return ApplicationSubmissionResult(
+          success: false,
+          message:
+              'Invalid document type. Only PDF, DOC, or DOCX files are allowed',
+        );
       }
 
       // Initialize database
@@ -108,10 +140,12 @@ class ApplicationService {
       // Check if connected to the internet
       bool isConnected = await _connectivityService.isConnected();
       int isSynced = 0; // 0 = not synced, 1 = synced
+      String? resultMessage;
+      String? applicationNumber;
 
       if (isConnected) {
         // Try uploading to the API
-        bool apiSuccess = await _uploadToApi(
+        final apiResult = await _uploadToApiWithResult(
           scholarshipId: scholarshipId,
           scholarshipName: scholarshipName,
           provider: provider,
@@ -126,13 +160,15 @@ class ApplicationService {
           document: document,
         );
 
-        // For testing, ALSO directly add to database via direct SQL
-        if (!apiSuccess) {
+        if (apiResult.success) {
+          resultMessage = apiResult.message;
+          applicationNumber = apiResult.applicationNumber;
+          isSynced = 1;
+        } else {
+          // API upload failed, try direct database insertion
           print("API upload failed, trying direct DB injection as backup...");
           try {
-            // This is a temporary measure to bypass API issues
-            // In production, all data should go through the API
-            await _submitDirectlyToDatabase(
+            final directResult = await _submitDirectlyToDatabaseWithResult(
               scholarshipId: scholarshipId,
               dateOfBirth: dateOfBirth,
               gender: gender,
@@ -141,13 +177,18 @@ class ApplicationService {
               homeAddress: homeAddress,
               studentId: studentId,
             );
-            print("Direct DB injection as backup was successful");
-            isSynced = 1;
+
+            if (directResult.success) {
+              resultMessage = directResult.message;
+              applicationNumber = directResult.applicationNumber;
+              isSynced = 1;
+              print("Direct DB injection as backup was successful");
+            } else {
+              print("Direct DB injection failed");
+            }
           } catch (e) {
             print("Direct DB injection failed: $e");
           }
-        } else {
-          isSynced = 1;
         }
       }
 
@@ -174,20 +215,69 @@ class ApplicationService {
             'appliedDate': timestamp,
             'passportPhotoPath': passportPhotoPath,
             'documentPath': documentPath,
+            'applicationNumber': applicationNumber,
             'isSynced': isSynced,
           },
           conflictAlgorithm: ConflictAlgorithm.replace);
 
-      return true;
+      // Default message if none was provided
+      if (resultMessage == null) {
+        resultMessage = 'Your application has been saved ' +
+            (isSynced == 1
+                ? 'and submitted successfully.'
+                : 'locally and will be submitted when you have internet connection.');
+      }
+
+      return ApplicationSubmissionResult(
+        success: true,
+        message: resultMessage,
+        applicationNumber: applicationNumber,
+      );
     } catch (e) {
       print('Error submitting application: $e');
-      return false;
+      return ApplicationSubmissionResult(
+        success: false,
+        message: 'Error submitting application: $e',
+      );
     }
   }
 
-  // TEMPORARY SOLUTION: Direct database insert
-  // This is only for testing and should not be used in production
-  static Future<bool> _submitDirectlyToDatabase({
+  // Submit application - original version for backward compatibility
+  static Future<bool> submitApplication({
+    required int scholarshipId,
+    required String scholarshipName,
+    required String provider,
+    required double amount,
+    required String dateOfBirth,
+    required String gender,
+    required String category,
+    required String major,
+    required String homeAddress,
+    required String studentId,
+    required File passportPhoto,
+    required File document,
+  }) async {
+    final result = await submitApplicationWithResult(
+      scholarshipId: scholarshipId,
+      scholarshipName: scholarshipName,
+      provider: provider,
+      amount: amount,
+      dateOfBirth: dateOfBirth,
+      gender: gender,
+      category: category,
+      major: major,
+      homeAddress: homeAddress,
+      studentId: studentId,
+      passportPhoto: passportPhoto,
+      document: document,
+    );
+
+    return result.success;
+  }
+
+  // TEMPORARY SOLUTION: Direct database insert with result
+  static Future<ApplicationSubmissionResult>
+      _submitDirectlyToDatabaseWithResult({
     required int scholarshipId,
     required String dateOfBirth,
     required String gender,
@@ -198,8 +288,6 @@ class ApplicationService {
   }) async {
     try {
       // Direct insert using our temporary PHP script
-      // IMPORTANT: Use 192.168.37.5 instead of localhost for Android emulators to access the host machine
-      // "localhost" in the emulator refers to the emulator itself, not your computer
       const String host = "172.16.5.8"; // Hardcoded to prevent any confusion
       final url = 'http://$host/ASMSLive/mobile_asms/direct_insert.php';
 
@@ -242,23 +330,44 @@ class ApplicationService {
           final responseData = json.decode(response.body);
           if (responseData["success"] == true) {
             print('Direct insert successful: ${responseData["message"]}');
-            return true;
+
+            // Get application number from response if available
+            String? appNumber;
+            if (responseData.containsKey("applicationNumber")) {
+              appNumber = responseData["applicationNumber"].toString();
+            }
+
+            return ApplicationSubmissionResult(
+              success: true,
+              message: responseData["message"],
+              applicationNumber: appNumber,
+            );
           } else {
             print('Direct insert API returned error: ${responseData["error"]}');
-            return false;
+            return ApplicationSubmissionResult(
+              success: false,
+              message: responseData["error"] ?? "Unknown error",
+            );
           }
         } catch (e) {
           print('Error parsing response: $e');
-          return response.statusCode ==
-              200; // Assume success if status code is 200
+          return ApplicationSubmissionResult(
+            success: response.statusCode == 200,
+            message: "Application submitted",
+          );
         }
       } else {
         print('Direct insert failed with status code: ${response.statusCode}');
-        return false;
+        return ApplicationSubmissionResult(
+          success: false,
+          message: "Server error: ${response.statusCode}",
+        );
       }
     } catch (e) {
       print('Error with direct DB insert: $e');
-      // Print more detailed error information for debugging
+      String errorMessage = "Connection error";
+
+      // More detailed error information for debugging
       if (e is SocketException) {
         print(
           '  > Socket error details: ${e.message}, address: ${e.address}, port: ${e.port}',
@@ -266,15 +375,44 @@ class ApplicationService {
         print(
           '  > Make sure XAMPP is running and your server is accessible from the emulator',
         );
+        errorMessage = "Server connection error: ${e.message}";
       } else if (e is TimeoutException) {
         print('  > Connection timed out - check your server and network');
+        errorMessage = "Connection timed out";
       }
-      return false;
+
+      return ApplicationSubmissionResult(
+        success: false,
+        message: errorMessage,
+      );
     }
   }
 
-  // Upload application to API
-  static Future<bool> _uploadToApi({
+  // TEMPORARY SOLUTION: Direct database insert - original version
+  static Future<bool> _submitDirectlyToDatabase({
+    required int scholarshipId,
+    required String dateOfBirth,
+    required String gender,
+    required String category,
+    required String major,
+    required String homeAddress,
+    required String studentId,
+  }) async {
+    final result = await _submitDirectlyToDatabaseWithResult(
+      scholarshipId: scholarshipId,
+      dateOfBirth: dateOfBirth,
+      gender: gender,
+      category: category,
+      major: major,
+      homeAddress: homeAddress,
+      studentId: studentId,
+    );
+
+    return result.success;
+  }
+
+  // Upload application to API with result
+  static Future<ApplicationSubmissionResult> _uploadToApiWithResult({
     required int scholarshipId,
     required String scholarshipName,
     required String provider,
@@ -293,7 +431,10 @@ class ApplicationService {
       final token = await _apiService.getToken();
       if (token == null) {
         print('Error: No authentication token found');
-        return false;
+        return ApplicationSubmissionResult(
+          success: false,
+          message: "Authentication failed",
+        );
       }
 
       // The backend expects a JSON request, not multipart form
@@ -339,19 +480,78 @@ class ApplicationService {
       // Check if the request was successful
       if (response.statusCode >= 200 && response.statusCode < 300) {
         print('Application successfully submitted to backend');
-        return true;
+
+        String? appNumber;
+        if (responseData != null &&
+            responseData.containsKey("applicationNumber")) {
+          appNumber = responseData["applicationNumber"].toString();
+        }
+
+        String message =
+            responseData != null && responseData.containsKey("message")
+                ? responseData["message"]
+                : "Application successfully submitted";
+
+        return ApplicationSubmissionResult(
+          success: true,
+          message: message,
+          applicationNumber: appNumber,
+        );
       } else {
         print('API Error Status: ${response.statusCode}');
         print('API Error Body: ${response.body}');
+
+        String errorMessage = "Server error";
         if (responseData != null && responseData.containsKey('error')) {
-          print('API Error Message: ${responseData['error']}');
+          errorMessage = responseData['error'];
+          print('API Error Message: $errorMessage');
         }
-        return false;
+
+        return ApplicationSubmissionResult(
+          success: false,
+          message: errorMessage,
+        );
       }
     } catch (e) {
       print('Error uploading to API: $e');
-      return false;
+      return ApplicationSubmissionResult(
+        success: false,
+        message: "Error: $e",
+      );
     }
+  }
+
+  // Upload application to API - original version
+  static Future<bool> _uploadToApi({
+    required int scholarshipId,
+    required String scholarshipName,
+    required String provider,
+    required double amount,
+    required String dateOfBirth,
+    required String gender,
+    required String category,
+    required String major,
+    required String homeAddress,
+    required String studentId,
+    required File passportPhoto,
+    required File document,
+  }) async {
+    final result = await _uploadToApiWithResult(
+      scholarshipId: scholarshipId,
+      scholarshipName: scholarshipName,
+      provider: provider,
+      amount: amount,
+      dateOfBirth: dateOfBirth,
+      gender: gender,
+      category: category,
+      major: major,
+      homeAddress: homeAddress,
+      studentId: studentId,
+      passportPhoto: passportPhoto,
+      document: document,
+    );
+
+    return result.success;
   }
 
   // Get all applications

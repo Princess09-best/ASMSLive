@@ -252,6 +252,35 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Submitted on ${DateFormat('MMM dd, yyyy').format(DateTime.parse(application.appliedDate))}',
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 12,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Status: ${application.status}',
+                          style: TextStyle(
+                            color: application.status == 'Submitted'
+                                ? Colors.green
+                                : Colors.orange,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                        ),
+                        // Display Application Number if available
+                        if (application.applicationNumber != null &&
+                            application.applicationNumber!.isNotEmpty)
+                          Text(
+                            'Application #: ${application.applicationNumber}',
+                            style: TextStyle(
+                              color: Color(0xFF757575),
+                              fontSize: 12,
+                            ),
+                          ),
                       ],
                     ),
                   ),
