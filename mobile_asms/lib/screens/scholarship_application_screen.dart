@@ -9,6 +9,9 @@ import '../config/app_constants.dart';
 import '../models/scholarship.dart';
 import '../services/application_service.dart';
 import '../services/camera_service.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
+import 'package:file_picker/file_picker.dart';
 
 class ScholarshipApplicationScreen extends StatefulWidget {
   final Scholarship scholarship;
@@ -249,6 +252,10 @@ class _ScholarshipApplicationScreenState
         _isSubmitting = true;
       });
 
+      // Get the current user ID from the AuthProvider
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final userId = authProvider.currentUser?.id;
+
       // Submit application using the ApplicationService
       final result = await ApplicationService.submitApplicationWithResult(
         scholarshipId: widget.scholarship.id,
@@ -263,6 +270,7 @@ class _ScholarshipApplicationScreenState
         studentId: _ashesiIdController.text,
         passportPhoto: _passportPhoto!,
         document: _requiredDocument!,
+        userId: userId,
       );
 
       if (mounted) {

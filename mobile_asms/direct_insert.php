@@ -62,6 +62,9 @@ try {
     $profilePic = $data['pic'] ?? 'default_profile.jpg';
     $docReq = $data['doc'] ?? 'default_document.pdf';
     
+    // Get user ID from request, default to 1 if not provided
+    $user_id = $data['userId'] ?? $data['UserID'] ?? 1;
+    
     // Validate required fields
     if (!$schemeId || !$dateOfBirth || !$gender || !$category || !$major || !$address || !$ashesiId) {
         debug_log("Missing required field. Available fields: " . json_encode(array_keys($data)));
@@ -98,9 +101,6 @@ try {
     // Generate application number - MATCH WEB VERSION FORMAT
     $application_number = mt_rand(100000000, 999999999);
     debug_log("Generated application number: " . $application_number);
-    
-    // Default user ID for testing
-    $user_id = 1;
     
     // Prepare the SQL statement - match column names EXACTLY as in the database
     $sql = "INSERT INTO tblapply(SchemeId, ApplicationNumber, UserID, DateofBirth, Gender, Category, Major, Address, AshesiID, ProfilePic, DocReq, Status, ApplyDate) 

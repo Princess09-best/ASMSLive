@@ -29,6 +29,7 @@ class ApplicationService {
   static final DatabaseHelper _databaseHelper = DatabaseHelper.instance;
   static final Uuid _uuid = Uuid();
   static final ApiService _apiService = ApiService();
+  static final AuthService _authService = AuthService();
 
   // Initialize application table in database
   static Future<void> initApplicationDatabase() async {
@@ -57,17 +58,22 @@ class ApplicationService {
         passportPhotoPath TEXT NOT NULL,
         documentPath TEXT NOT NULL,
         applicationNumber TEXT,
-        isSynced INTEGER NOT NULL
+        isSynced INTEGER NOT NULL,
+        userId INTEGER
       )
       ''');
     } else {
       // Check if applicationNumber column exists, add it if it doesn't
       final columns = await db.rawQuery("PRAGMA table_info(applications)");
       bool hasApplicationNumber = false;
+      bool hasUserId = false;
+
       for (var col in columns) {
         if (col['name'] == 'applicationNumber') {
           hasApplicationNumber = true;
-          break;
+        }
+        if (col['name'] == 'userId') {
+          hasUserId = true;
         }
       }
 
@@ -76,6 +82,12 @@ class ApplicationService {
         await db.execute(
             'ALTER TABLE applications ADD COLUMN applicationNumber TEXT');
         print('Added applicationNumber column to applications table');
+      }
+
+      // Add userId column if it doesn't exist
+      if (!hasUserId) {
+        await db.execute('ALTER TABLE applications ADD COLUMN userId INTEGER');
+        print('Added userId column to applications table');
       }
     }
   }
@@ -109,8 +121,15 @@ class ApplicationService {
     required String studentId,
     required File passportPhoto,
     required File document,
+    int? userId,
   }) async {
     try {
+      // If userId is not provided, try to get it from the auth service
+      if (userId == null) {
+        final currentUser = await _authService.getCurrentUser();
+        userId = currentUser?.id;
+      }
+
       // Validate document file type
       if (!isValidDocumentType(document)) {
         print(
@@ -158,6 +177,7 @@ class ApplicationService {
           studentId: studentId,
           passportPhoto: passportPhoto,
           document: document,
+          userId: userId,
         );
 
         if (apiResult.success) {
@@ -176,6 +196,7 @@ class ApplicationService {
               major: major,
               homeAddress: homeAddress,
               studentId: studentId,
+              userId: userId,
             );
 
             if (directResult.success) {
@@ -217,6 +238,7 @@ class ApplicationService {
             'documentPath': documentPath,
             'applicationNumber': applicationNumber,
             'isSynced': isSynced,
+            'userId': userId,
           },
           conflictAlgorithm: ConflictAlgorithm.replace);
 
@@ -256,6 +278,7 @@ class ApplicationService {
     required String studentId,
     required File passportPhoto,
     required File document,
+    int? userId,
   }) async {
     final result = await submitApplicationWithResult(
       scholarshipId: scholarshipId,
@@ -270,6 +293,7 @@ class ApplicationService {
       studentId: studentId,
       passportPhoto: passportPhoto,
       document: document,
+      userId: userId,
     );
 
     return result.success;
@@ -285,8 +309,15 @@ class ApplicationService {
     required String major,
     required String homeAddress,
     required String studentId,
+    int? userId,
   }) async {
     try {
+      // If userId is null, try to get it from auth service
+      if (userId == null) {
+        final currentUser = await _authService.getCurrentUser();
+        userId = currentUser?.id ?? 1; // Fallback to 1 if all else fails
+      }
+
       // Direct insert using our temporary PHP script
       const String host = "172.16.5.8"; // Hardcoded to prevent any confusion
       final url = 'http://$host/ASMSLive/mobile_asms/direct_insert.php';
@@ -302,6 +333,7 @@ class ApplicationService {
         'ashesiId': studentId,
         'pic': 'default_profile.jpg',
         'doc': 'default_document.pdf',
+        'userId': userId,
       };
 
       print('Sending direct insert request to: $url');
@@ -397,6 +429,7 @@ class ApplicationService {
     required String major,
     required String homeAddress,
     required String studentId,
+    int? userId,
   }) async {
     final result = await _submitDirectlyToDatabaseWithResult(
       scholarshipId: scholarshipId,
@@ -406,6 +439,7 @@ class ApplicationService {
       major: major,
       homeAddress: homeAddress,
       studentId: studentId,
+      userId: userId,
     );
 
     return result.success;
@@ -425,8 +459,15 @@ class ApplicationService {
     required String studentId,
     required File passportPhoto,
     required File document,
+    int? userId,
   }) async {
     try {
+      // If userId is null, try to get it from auth service
+      if (userId == null) {
+        final currentUser = await _authService.getCurrentUser();
+        userId = currentUser?.id ?? 1; // Fallback to 1 if all else fails
+      }
+
       // Get auth token
       final token = await _apiService.getToken();
       if (token == null) {
@@ -450,6 +491,7 @@ class ApplicationService {
         'major': major, // lowercase as expected by backend
         'address': homeAddress, // lowercase as expected by backend
         'ashesiId': studentId, // lowercase as expected by backend
+        'userId': userId, // Add user ID
       };
 
       print('Request body: $requestBody');
