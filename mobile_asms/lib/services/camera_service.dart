@@ -287,10 +287,11 @@ class CameraService {
         lockParentWindow: true,
       );
 
-      if (result != null &&
-          result.files.isNotEmpty &&
-          result.files.single.path != null) {
-        return File(result.files.single.path!);
+      if (result != null && result.files.isNotEmpty) {
+        String? filePath = result.files.single.path;
+        if (filePath != null) {
+          return File(filePath);
+        }
       }
       return null;
     } catch (e) {

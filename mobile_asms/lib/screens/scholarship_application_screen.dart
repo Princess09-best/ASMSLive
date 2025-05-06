@@ -116,7 +116,7 @@ class _ScholarshipApplicationScreenState
                 ),
                 ListTile(
                   leading: const Icon(Icons.image),
-                  title: const Text('Pick from Gallery'),
+                  title: const Text('Select Image from Gallery'),
                   onTap: () async {
                     Navigator.of(context).pop();
                     final File? file = await cameraService.pickImage(
@@ -136,6 +136,20 @@ class _ScholarshipApplicationScreenState
                           backgroundColor: Colors.red,
                         ),
                       );
+                    }
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.file_copy),
+                  title: const Text('Select Document (PDF, DOC, DOCX)'),
+                  onTap: () async {
+                    Navigator.of(context).pop();
+                    final File? file = await CameraService.selectDocument();
+
+                    if (file != null) {
+                      setState(() {
+                        _requiredDocument = file;
+                      });
                     }
                   },
                 ),
