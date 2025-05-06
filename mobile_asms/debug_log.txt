@@ -1,0 +1,7 @@
+[2025-05-06 08:17:54] Request received: POST with URI /ASMSLive/mobile_asms/direct_insert.php
+[2025-05-06 08:17:54] Raw input: {"schemeId":6,"dateOfBirth":"05/21/2007","gender":"Female","category":"HighNeed","major":"hrbrbbrbt","address":"Jsbebrbbekwk","ashesiId":"55532025","pic":"default_profile.jpg","doc":"default_document.pdf"}
+[2025-05-06 08:17:54] Received data: {"schemeId":6,"dateOfBirth":"05\/21\/2007","gender":"Female","category":"HighNeed","major":"hrbrbbrbt","address":"Jsbebrbbekwk","ashesiId":"55532025","pic":"default_profile.jpg","doc":"default_document.pdf"}
+[2025-05-06 08:17:54] Database connection established
+[2025-05-06 08:17:54] Executing SQL: INSERT INTO tblapply(SchemeId, ApplicationNumber, UserID, DateofBirth, Gender, Category, Major, Address, AshesiID, ProfilePic, DocReq, Status, ApplyDate) 
+            VALUES (:schemeid, :appnum, :uid, :dob, :gender, :category, :major, :address, :ashesiID, :pic, :doc, '0', NOW())
+[2025-05-06 08:17:54] Insert successful. ID: 15, Application Number: APP1746512274530

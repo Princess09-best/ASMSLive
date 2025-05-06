@@ -18,3 +18,18 @@ test
 [2025-05-05 07:16:57] Executing SQL: INSERT INTO tblapply(SchemeId, ApplicationNumber, UserID, DateofBirth, Gender, Category, Major, Address, AshesiID, ProfilePic, DocReq) 
             VALUES (:schemeid, :appnum, :uid, :dob, :gender, :category, :major, :address, :ashesiID, :pic, :doc)
 [2025-05-05 07:16:57] Insert successful. ID: 12, Application Number: 185244269
+[2025-05-06 06:45:07] Request received: POST with URI /ASMSLive/direct_insert.php
+[2025-05-06 06:45:07] Request received: POST
+[2025-05-06 06:45:07] Raw input: {"schemeId":2,"dateOfBirth":"05/11/2007","gender":"Male","category":"HighNeed","major":"tyryrgrg","address":"Dgeyneynygsjdjfgtegddhdmk","ashesiId":"88822025"}
+[2025-05-06 06:45:07] Received data: {"schemeId":2,"dateOfBirth":"05\/11\/2007","gender":"Male","category":"HighNeed","major":"tyryrgrg","address":"Dgeyneynygsjdjfgtegddhdmk","ashesiId":"88822025"}
+[2025-05-06 06:45:07] Missing required field: scholarshipId
+[2025-05-06 06:49:51] Request received: POST with URI /ASMSLive/direct_insert.php
+[2025-05-06 06:49:51] Request received: POST
+[2025-05-06 06:49:51] Raw input: {"schemeId":6,"dateOfBirth":"05/31/2007","gender":"Female","category":"HighNeed","major":"rrhwvskoebwb","address":"Wuxjxkwhxjwbw","ashesiId":"23320989"}
+[2025-05-06 06:49:51] Received data: {"schemeId":6,"dateOfBirth":"05\/31\/2007","gender":"Female","category":"HighNeed","major":"rrhwvskoebwb","address":"Wuxjxkwhxjwbw","ashesiId":"23320989"}
+[2025-05-06 06:49:51] Missing required field: scholarshipId
+[2025-05-06 07:42:35] Request received: POST with URI /ASMSLive/direct_insert.php
+[2025-05-06 07:42:35] Request received: POST
+[2025-05-06 07:42:35] Raw input: {"SchemeId":6,"dateOfBirth":"05/25/2007","gender":"Female","category":"HighNeed","major":"help ","Address":"Help help help","AshesiID":"88822025"}
+[2025-05-06 07:42:35] Received data: {"SchemeId":6,"dateOfBirth":"05\/25\/2007","gender":"Female","category":"HighNeed","major":"help ","Address":"Help help help","AshesiID":"88822025"}
+[2025-05-06 07:42:35] Missing required field: scholarshipId

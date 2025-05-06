@@ -200,18 +200,20 @@ class ApplicationService {
       // Direct insert using our temporary PHP script
       // IMPORTANT: Use 192.168.37.5 instead of localhost for Android emulators to access the host machine
       // "localhost" in the emulator refers to the emulator itself, not your computer
-      const String host = "192.168.37.5"; // Hardcoded to prevent any confusion
-      final url = 'http://$host/ASMSLive/direct_insert.php';
+      const String host = "172.16.5.8"; // Hardcoded to prevent any confusion
+      final url = 'http://$host/ASMSLive/mobile_asms/direct_insert.php';
 
       // Prepare request data - match the exact field names from the PHP script
       final Map<String, dynamic> requestData = {
-        'scholarshipId': scholarshipId,
+        'schemeId': scholarshipId,
         'dateOfBirth': dateOfBirth,
         'gender': gender,
         'category': category,
         'major': major,
-        'homeAddress': homeAddress,
-        'studentId': studentId,
+        'address': homeAddress,
+        'ashesiId': studentId,
+        'pic': 'default_profile.jpg',
+        'doc': 'default_document.pdf',
       };
 
       print('Sending direct insert request to: $url');

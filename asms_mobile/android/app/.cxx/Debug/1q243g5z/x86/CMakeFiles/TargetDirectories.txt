@@ -1,2 +1,0 @@
-C:/xampp/htdocs/ASMSLive/asms_mobile/android/app/.cxx/Debug/1q243g5z/x86/CMakeFiles/edit_cache.dir
-C:/xampp/htdocs/ASMSLive/asms_mobile/android/app/.cxx/Debug/1q243g5z/x86/CMakeFiles/rebuild_cache.dir
