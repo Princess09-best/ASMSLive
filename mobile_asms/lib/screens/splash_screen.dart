@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../providers/notification_provider.dart';
+import '../services/connectivity_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -10,13 +12,37 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  final ConnectivityService _connectivityService = ConnectivityService();
+
   @override
   void initState() {
     super.initState();
-    _checkAuth();
+    _initializeApp();
   }
 
-  Future<void> _checkAuth() async {
+  @override
+  void dispose() {
+    _connectivityService.dispose();
+    super.dispose();
+  }
+
+  Future<void> _initializeApp() async {
+    // Initialize connectivity monitoring
+    _connectivityService.listenToConnectivityChanges((isConnected) {
+      // Update UI or state if needed
+      if (mounted) {
+        final notificationProvider =
+            Provider.of<NotificationProvider>(context, listen: false);
+        if (isConnected) {
+          notificationProvider.showLocalNotification(
+            'Network Connected',
+            'Your network connection has been restored.',
+            payload: 'network_status',
+          );
+        }
+      }
+    });
+
     // Add a small delay for splash screen visibility
     await Future.delayed(Duration(seconds: 2));
 

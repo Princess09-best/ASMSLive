@@ -43,11 +43,22 @@ class _HomeScreenState extends State<HomeScreen> {
       // Refresh data when connectivity is restored
       if (isConnected && !_isLoading) {
         _refreshData();
+
+        // Try to sync any pending applications when connectivity is restored
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        _syncPendingApplicationsForCurrentUser(authProvider.currentUser?.id);
       }
     });
 
-    // Try to sync any pending applications
-    _syncPendingApplications();
+    // Try to sync any pending applications on startup
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    _syncPendingApplicationsForCurrentUser(authProvider.currentUser?.id);
+  }
+
+  @override
+  void dispose() {
+    _connectivityService.dispose();
+    super.dispose();
   }
 
   Future<void> _checkConnectivity() async {
@@ -84,15 +95,31 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Future<void> _syncPendingApplications() async {
+  // Sync pending applications with user ID if available
+  Future<void> _syncPendingApplicationsForCurrentUser(int? userId) async {
     try {
       bool isConnected = await _connectivityService.isConnected();
       if (isConnected) {
-        await ApplicationService.syncPendingApplications();
+        // Use userId for more precise syncing if available
+        if (userId != null) {
+          print('Syncing pending applications for user ID: $userId');
+          await ApplicationService.syncPendingApplications(userId: userId);
+        } else {
+          print('Syncing all pending applications (no user ID provided)');
+          await ApplicationService.syncPendingApplications();
+        }
+      } else {
+        print('Not connected, skipping application sync');
       }
     } catch (e) {
       print('Error syncing applications: $e');
     }
+  }
+
+  // Legacy method kept for compatibility
+  Future<void> _syncPendingApplications() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    await _syncPendingApplicationsForCurrentUser(authProvider.currentUser?.id);
   }
 
   @override

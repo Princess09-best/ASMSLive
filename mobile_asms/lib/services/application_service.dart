@@ -13,6 +13,7 @@ import '../services/auth_service.dart';
 import '../services/api_service.dart';
 import '../config/app_constants.dart';
 import '../config/api_config.dart';
+import '../services/notification_service.dart';
 
 // Class to hold application submission result
 class ApplicationSubmissionResult {
@@ -677,6 +678,14 @@ class ApplicationService {
         return;
       }
 
+      // Initialize notification service
+      final notificationService = NotificationService();
+      await notificationService.initialize();
+
+      // Keep track of successful syncs for batch notification
+      List<String> syncedScholarshipNames = [];
+      bool anySuccess = false;
+
       for (var map in result) {
         final application = Application.fromMap(map);
         print('Attempting to sync application ID: ${application.id}');
@@ -773,10 +782,43 @@ class ApplicationService {
           );
           print(
               'Updated local database for application ID: ${application.id} - marked as synced');
+
+          // Track successful sync for notification
+          syncedScholarshipNames.add(application.scholarshipName);
+          anySuccess = true;
+
+          // Show individual notification if desired
+          // await notificationService.showApplicationStatusNotification(
+          //   applicationId: application.id,
+          //   scholarshipName: application.scholarshipName,
+          //   status: 'submitted',
+          // );
         } else {
           print(
               'Failed to sync application ID: ${application.id} - remains pending');
         }
+      }
+
+      // Show a summary notification if any applications were successfully synced
+      if (anySuccess) {
+        final uniqueScholarshipCount = syncedScholarshipNames.toSet().length;
+        String notificationTitle = 'Applications Synced';
+        String notificationBody;
+
+        if (uniqueScholarshipCount == 1) {
+          notificationBody =
+              'Your application for ${syncedScholarshipNames[0]} has been successfully submitted.';
+        } else {
+          notificationBody =
+              '$uniqueScholarshipCount scholarship applications have been successfully submitted.';
+        }
+
+        await notificationService.showNotification(
+          id: DateTime.now().millisecondsSinceEpoch % 100000,
+          title: notificationTitle,
+          body: notificationBody,
+          payload: 'sync_completed',
+        );
       }
 
       print('Finished syncing pending applications');
