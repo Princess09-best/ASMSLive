@@ -3,11 +3,13 @@ import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/notification_provider.dart';
 import 'services/notification_service.dart';
+import 'services/connectivity_service.dart';
 import 'screens/splash_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/camera_test_screen.dart';
+import 'dart:async';
 
 void main() async {
   // Ensure Flutter is initialized
@@ -16,6 +18,24 @@ void main() async {
   // Initialize notification service
   final notificationService = NotificationService();
   await notificationService.initialize();
+
+  // Start listening for connectivity changes immediately
+  final connectivityService = ConnectivityService();
+  // Explicitly start listening to ensure it's active
+  connectivityService.startListeningForConnectivity();
+
+  // Force a connectivity check after a short delay to ensure the app is ready
+  // Increased from 5 to 8 seconds for better initialization
+  Future.delayed(const Duration(seconds: 8), () async {
+    print('Performing delayed connectivity check and sync');
+    await connectivityService.forceConnectivityCheckAndSync();
+  });
+
+  // Also set up periodic connectivity checks for situations where events might be missed
+  Timer.periodic(const Duration(minutes: 5), (timer) async {
+    print('Performing periodic connectivity check and sync');
+    await connectivityService.forceConnectivityCheckAndSync();
+  });
 
   runApp(
     MultiProvider(

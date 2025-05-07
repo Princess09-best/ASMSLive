@@ -12,6 +12,7 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  // Use the singleton instance of ConnectivityService
   final ConnectivityService _connectivityService = ConnectivityService();
 
   @override
@@ -22,26 +23,18 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void dispose() {
-    _connectivityService.dispose();
+    // No need to unregister as we don't register for callbacks in this screen
     super.dispose();
   }
 
   Future<void> _initializeApp() async {
-    // Initialize connectivity monitoring
-    _connectivityService.listenToConnectivityChanges((isConnected) {
-      // Update UI or state if needed
-      if (mounted) {
-        final notificationProvider =
-            Provider.of<NotificationProvider>(context, listen: false);
-        if (isConnected) {
-          notificationProvider.showLocalNotification(
-            'Network Connected',
-            'Your network connection has been restored.',
-            payload: 'network_status',
-          );
-        }
-      }
-    });
+    // Force a connectivity check and sync during splash screen
+    try {
+      print('Splash screen forcing connectivity check and sync');
+      await _connectivityService.forceConnectivityCheckAndSync();
+    } catch (e) {
+      print('Error during forced connectivity check: $e');
+    }
 
     // Add a small delay for splash screen visibility
     await Future.delayed(Duration(seconds: 2));

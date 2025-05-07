@@ -17,7 +17,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   int _currentIndex = 0;
   // Scholarship data
   List<Scholarship> _scholarships = [];
@@ -27,38 +27,83 @@ class _HomeScreenState extends State<HomeScreen> {
   final ConnectivityService _connectivityService = ConnectivityService();
   final GlobalKey<RefreshIndicatorState> _refreshKey =
       GlobalKey<RefreshIndicatorState>();
+  bool _isListeningToConnectivity = false;
+  bool _isScreenActive = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _checkConnectivity();
     _loadData();
 
-    // Listen for connectivity changes
-    _connectivityService.listenToConnectivityChanges((isConnected) {
-      setState(() {
-        _isConnected = isConnected;
-      });
-
-      // Refresh data when connectivity is restored
-      if (isConnected && !_isLoading) {
-        _refreshData();
-
-        // Try to sync any pending applications when connectivity is restored
-        final authProvider = Provider.of<AuthProvider>(context, listen: false);
-        _syncPendingApplicationsForCurrentUser(authProvider.currentUser?.id);
-      }
-    });
-
-    // Try to sync any pending applications on startup
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    _syncPendingApplicationsForCurrentUser(authProvider.currentUser?.id);
+    // Register for connectivity updates
+    _connectivityService.listenToConnectivityChanges(_handleConnectivityChange);
   }
 
   @override
   void dispose() {
-    _connectivityService.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+    // Unregister from connectivity updates
+    _connectivityService
+        .unregisterConnectivityChanges(_handleConnectivityChange);
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      print('App resumed - checking connectivity and syncing');
+      _isScreenActive = true;
+      _checkConnectivityAndSync();
+    } else if (state == AppLifecycleState.paused) {
+      _isScreenActive = false;
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Check connectivity and sync when screen becomes active
+    if (!_isScreenActive) {
+      _isScreenActive = true;
+      print('Home screen became active - checking connectivity and syncing');
+      _checkConnectivityAndSync();
+    }
+  }
+
+  // Check connectivity and trigger sync if needed
+  Future<void> _checkConnectivityAndSync() async {
+    print('Checking connectivity and syncing...');
+    bool isConnected = await _connectivityService.isConnected();
+    setState(() {
+      _isConnected = isConnected;
+    });
+
+    if (isConnected) {
+      print('Connected - triggering sync');
+      await _syncPendingApplicationsForCurrentUser(
+          Provider.of<AuthProvider>(context, listen: false).currentUser?.id);
+    } else {
+      print('Not connected - skipping sync');
+    }
+  }
+
+  // Handle connectivity changes
+  void _handleConnectivityChange(bool isConnected) {
+    print('Connectivity changed: $isConnected');
+    setState(() {
+      _isConnected = isConnected;
+    });
+
+    // Refresh data and sync when connectivity is restored
+    if (isConnected) {
+      print('Connectivity restored - refreshing data and syncing');
+      _refreshData();
+      _syncPendingApplicationsForCurrentUser(
+          Provider.of<AuthProvider>(context, listen: false).currentUser?.id);
+    }
   }
 
   Future<void> _checkConnectivity() async {
@@ -95,21 +140,23 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  // Sync pending applications with user ID if available
+  // Manual sync for when the user initiates it (e.g., via pull-to-refresh)
   Future<void> _syncPendingApplicationsForCurrentUser(int? userId) async {
     try {
+      print('Starting sync for user: $userId');
       bool isConnected = await _connectivityService.isConnected();
       if (isConnected) {
-        // Use userId for more precise syncing if available
-        if (userId != null) {
-          print('Syncing pending applications for user ID: $userId');
-          await ApplicationService.syncPendingApplications(userId: userId);
-        } else {
-          print('Syncing all pending applications (no user ID provided)');
-          await ApplicationService.syncPendingApplications();
-        }
+        print('Connected - proceeding with sync');
+        await _connectivityService.syncIfConnected(userId: userId);
       } else {
         print('Not connected, skipping application sync');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+                'You are offline. Applications will sync when you reconnect.'),
+            duration: Duration(seconds: 2),
+          ),
+        );
       }
     } catch (e) {
       print('Error syncing applications: $e');

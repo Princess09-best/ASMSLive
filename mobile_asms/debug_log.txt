@@ -132,3 +132,113 @@
             VALUES (:schemeid, :appnum, :uid, :dob, :gender, :category, :major, :address, :ashesiID, :pic, :doc, '0', NOW())
 [2025-05-07 02:53:35] Parameters: SchemeId=2, DateofBirth=2007-05-29, Gender=Female, Category=HighNeed, Major=rtionfejm, Address=Rhgdbblnn , AshesiID=44433378
 [2025-05-07 02:53:35] Insert successful. ID: 30, Application Number: 882188952
+[2025-05-07 03:00:45] Request received: POST with URI /ASMSLive/mobile_asms/direct_insert.php
+[2025-05-07 03:00:45] Raw input: {"schemeId":6,"dateOfBirth":"05/15/2007","gender":"Male","category":"HighNeed","major":"58 ogre ask m","address":"N Zhang by can","ashesiId":"34ip4u9","pic":"default_profile.jpg","doc":"default_document.pdf","userId":19}
+[2025-05-07 03:00:45] Received data: {"schemeId":6,"dateOfBirth":"05\/15\/2007","gender":"Male","category":"HighNeed","major":"58 ogre ask m","address":"N Zhang by can","ashesiId":"34ip4u9","pic":"default_profile.jpg","doc":"default_document.pdf","userId":19}
+[2025-05-07 03:00:45] Original date: 05/15/2007
+[2025-05-07 03:00:45] Converted date to: 2007-05-15
+[2025-05-07 03:00:45] Database connection established
+[2025-05-07 03:00:45] Generated application number: 944320811
+[2025-05-07 03:00:45] Executing SQL: INSERT INTO tblapply(SchemeId, ApplicationNumber, UserID, DateofBirth, Gender, Category, Major, Address, AshesiID, ProfilePic, DocReq, Status, ApplyDate) 
+            VALUES (:schemeid, :appnum, :uid, :dob, :gender, :category, :major, :address, :ashesiID, :pic, :doc, '0', NOW())
+[2025-05-07 03:00:45] Parameters: SchemeId=6, DateofBirth=2007-05-15, Gender=Male, Category=HighNeed, Major=58 ogre ask m, Address=N Zhang by can, AshesiID=34ip4u9
+[2025-05-07 03:00:45] Insert successful. ID: 31, Application Number: 944320811
+[2025-05-07 03:01:49] Request received: POST with URI /ASMSLive/mobile_asms/direct_insert.php
+[2025-05-07 03:01:49] Raw input: {"schemeId":6,"dateOfBirth":"05/24/2007","gender":"Other","category":"Average","major":"hdbbdmdnrnd","address":"Gylsjdnbdnrjdjfn","ashesiId":"88822025","pic":"default_profile.jpg","doc":"default_document.pdf","userId":19}
+[2025-05-07 03:01:49] Received data: {"schemeId":6,"dateOfBirth":"05\/24\/2007","gender":"Other","category":"Average","major":"hdbbdmdnrnd","address":"Gylsjdnbdnrjdjfn","ashesiId":"88822025","pic":"default_profile.jpg","doc":"default_document.pdf","userId":19}
+[2025-05-07 03:01:49] Original date: 05/24/2007
+[2025-05-07 03:01:49] Converted date to: 2007-05-24
+[2025-05-07 03:01:49] Database connection established
+[2025-05-07 03:01:49] Generated application number: 600322636
+[2025-05-07 03:01:49] Executing SQL: INSERT INTO tblapply(SchemeId, ApplicationNumber, UserID, DateofBirth, Gender, Category, Major, Address, AshesiID, ProfilePic, DocReq, Status, ApplyDate) 
+            VALUES (:schemeid, :appnum, :uid, :dob, :gender, :category, :major, :address, :ashesiID, :pic, :doc, '0', NOW())
+[2025-05-07 03:01:49] Parameters: SchemeId=6, DateofBirth=2007-05-24, Gender=Other, Category=Average, Major=hdbbdmdnrnd, Address=Gylsjdnbdnrjdjfn, AshesiID=88822025
+[2025-05-07 03:01:49] Insert successful. ID: 32, Application Number: 600322636
+[2025-05-07 03:03:05] Request received: POST with URI /ASMSLive/mobile_asms/direct_insert.php
+[2025-05-07 03:03:05] Raw input: {"schemeId":6,"dateOfBirth":"05/31/2007","gender":"Male","category":"HighNeed","major":"hjbhjh","address":"Hsbdkndbb","ashesiId":"11223344","pic":"default_profile.jpg","doc":"default_document.pdf","userId":19}
+[2025-05-07 03:03:05] Received data: {"schemeId":6,"dateOfBirth":"05\/31\/2007","gender":"Male","category":"HighNeed","major":"hjbhjh","address":"Hsbdkndbb","ashesiId":"11223344","pic":"default_profile.jpg","doc":"default_document.pdf","userId":19}
+[2025-05-07 03:03:05] Original date: 05/31/2007
+[2025-05-07 03:03:05] Converted date to: 2007-05-31
+[2025-05-07 03:03:05] Database connection established
+[2025-05-07 03:03:05] Generated application number: 138522200
+[2025-05-07 03:03:05] Executing SQL: INSERT INTO tblapply(SchemeId, ApplicationNumber, UserID, DateofBirth, Gender, Category, Major, Address, AshesiID, ProfilePic, DocReq, Status, ApplyDate) 
+            VALUES (:schemeid, :appnum, :uid, :dob, :gender, :category, :major, :address, :ashesiID, :pic, :doc, '0', NOW())
+[2025-05-07 03:03:05] Parameters: SchemeId=6, DateofBirth=2007-05-31, Gender=Male, Category=HighNeed, Major=hjbhjh, Address=Hsbdkndbb, AshesiID=11223344
+[2025-05-07 03:03:05] Insert successful. ID: 33, Application Number: 138522200
+[2025-05-07 03:05:09] Request received: POST with URI /ASMSLive/mobile_asms/direct_insert.php
+[2025-05-07 03:05:09] Raw input: {"schemeId":2,"dateOfBirth":"05/03/2007","gender":"Other","category":"HighNeed","major":"thbkk","address":"Gkkbhh","ashesiId":"27707272","pic":"default_profile.jpg","doc":"default_document.pdf","userId":19}
+[2025-05-07 03:05:09] Received data: {"schemeId":2,"dateOfBirth":"05\/03\/2007","gender":"Other","category":"HighNeed","major":"thbkk","address":"Gkkbhh","ashesiId":"27707272","pic":"default_profile.jpg","doc":"default_document.pdf","userId":19}
+[2025-05-07 03:05:09] Original date: 05/03/2007
+[2025-05-07 03:05:09] Converted date to: 2007-05-03
+[2025-05-07 03:05:09] Database connection established
+[2025-05-07 03:05:09] Generated application number: 500517351
+[2025-05-07 03:05:09] Executing SQL: INSERT INTO tblapply(SchemeId, ApplicationNumber, UserID, DateofBirth, Gender, Category, Major, Address, AshesiID, ProfilePic, DocReq, Status, ApplyDate) 
+            VALUES (:schemeid, :appnum, :uid, :dob, :gender, :category, :major, :address, :ashesiID, :pic, :doc, '0', NOW())
+[2025-05-07 03:05:09] Parameters: SchemeId=2, DateofBirth=2007-05-03, Gender=Other, Category=HighNeed, Major=thbkk, Address=Gkkbhh, AshesiID=27707272
+[2025-05-07 03:05:09] Insert successful. ID: 34, Application Number: 500517351
+[2025-05-07 03:11:33] Request received: POST with URI /ASMSLive/mobile_asms/direct_insert.php
+[2025-05-07 03:11:33] Raw input: {"schemeId":2,"dateOfBirth":"05/29/2007","gender":"Male","category":"HighNeed","major":"dddrty","address":"Sgyyyyu","ashesiId":"23456780","pic":"default_profile.jpg","doc":"default_document.pdf","userId":19}
+[2025-05-07 03:11:33] Received data: {"schemeId":2,"dateOfBirth":"05\/29\/2007","gender":"Male","category":"HighNeed","major":"dddrty","address":"Sgyyyyu","ashesiId":"23456780","pic":"default_profile.jpg","doc":"default_document.pdf","userId":19}
+[2025-05-07 03:11:33] Original date: 05/29/2007
+[2025-05-07 03:11:33] Converted date to: 2007-05-29
+[2025-05-07 03:11:33] Database connection established
+[2025-05-07 03:11:33] Generated application number: 508686962
+[2025-05-07 03:11:33] Executing SQL: INSERT INTO tblapply(SchemeId, ApplicationNumber, UserID, DateofBirth, Gender, Category, Major, Address, AshesiID, ProfilePic, DocReq, Status, ApplyDate) 
+            VALUES (:schemeid, :appnum, :uid, :dob, :gender, :category, :major, :address, :ashesiID, :pic, :doc, '0', NOW())
+[2025-05-07 03:11:33] Parameters: SchemeId=2, DateofBirth=2007-05-29, Gender=Male, Category=HighNeed, Major=dddrty, Address=Sgyyyyu, AshesiID=23456780
+[2025-05-07 03:11:33] Insert successful. ID: 35, Application Number: 508686962
+[2025-05-07 03:12:44] Request received: POST with URI /ASMSLive/mobile_asms/direct_insert.php
+[2025-05-07 03:12:44] Raw input: {"schemeId":2,"dateOfBirth":"05/15/2007","gender":"Female","category":"HighNeed","major":"3eddddff","address":"Josisksnsjsk","ashesiId":"34534634","pic":"default_profile.jpg","doc":"default_document.pdf","userId":19}
+[2025-05-07 03:12:44] Received data: {"schemeId":2,"dateOfBirth":"05\/15\/2007","gender":"Female","category":"HighNeed","major":"3eddddff","address":"Josisksnsjsk","ashesiId":"34534634","pic":"default_profile.jpg","doc":"default_document.pdf","userId":19}
+[2025-05-07 03:12:44] Original date: 05/15/2007
+[2025-05-07 03:12:44] Converted date to: 2007-05-15
+[2025-05-07 03:12:44] Database connection established
+[2025-05-07 03:12:44] Generated application number: 628159356
+[2025-05-07 03:12:44] Executing SQL: INSERT INTO tblapply(SchemeId, ApplicationNumber, UserID, DateofBirth, Gender, Category, Major, Address, AshesiID, ProfilePic, DocReq, Status, ApplyDate) 
+            VALUES (:schemeid, :appnum, :uid, :dob, :gender, :category, :major, :address, :ashesiID, :pic, :doc, '0', NOW())
+[2025-05-07 03:12:44] Parameters: SchemeId=2, DateofBirth=2007-05-15, Gender=Female, Category=HighNeed, Major=3eddddff, Address=Josisksnsjsk, AshesiID=34534634
+[2025-05-07 03:12:44] Insert successful. ID: 36, Application Number: 628159356
+[2025-05-07 03:49:30] Request received: POST with URI /ASMSLive/mobile_asms/direct_insert.php
+[2025-05-07 03:49:30] Raw input: {"schemeId":2,"dateOfBirth":"05/13/2007","gender":"Male","category":"HighNeed","major":"wguolckkcbh","address":"Wtilcvnvzhjn","ashesiId":"34567890","pic":"default_profile.jpg","doc":"default_document.pdf","userId":19}
+[2025-05-07 03:49:30] Received data: {"schemeId":2,"dateOfBirth":"05\/13\/2007","gender":"Male","category":"HighNeed","major":"wguolckkcbh","address":"Wtilcvnvzhjn","ashesiId":"34567890","pic":"default_profile.jpg","doc":"default_document.pdf","userId":19}
+[2025-05-07 03:49:30] Original date: 05/13/2007
+[2025-05-07 03:49:30] Converted date to: 2007-05-13
+[2025-05-07 03:49:30] Database connection established
+[2025-05-07 03:49:30] Generated application number: 909596833
+[2025-05-07 03:49:30] Executing SQL: INSERT INTO tblapply(SchemeId, ApplicationNumber, UserID, DateofBirth, Gender, Category, Major, Address, AshesiID, ProfilePic, DocReq, Status, ApplyDate) 
+            VALUES (:schemeid, :appnum, :uid, :dob, :gender, :category, :major, :address, :ashesiID, :pic, :doc, '0', NOW())
+[2025-05-07 03:49:30] Parameters: SchemeId=2, DateofBirth=2007-05-13, Gender=Male, Category=HighNeed, Major=wguolckkcbh, Address=Wtilcvnvzhjn, AshesiID=34567890
+[2025-05-07 03:49:30] Insert successful. ID: 37, Application Number: 909596833
+[2025-05-07 04:11:31] Request received: POST with URI /ASMSLive/mobile_asms/direct_insert.php
+[2025-05-07 04:11:31] Raw input: {"schemeId":6,"dateOfBirth":"05/15/2007","gender":"Female","category":"HighNeed","major":"sfuknkbjkbbhj","address":"Dydjcjupt7ufyf","ashesiId":"12457800","pic":"default_profile.jpg","doc":"default_document.pdf","userId":19}
+[2025-05-07 04:11:31] Received data: {"schemeId":6,"dateOfBirth":"05\/15\/2007","gender":"Female","category":"HighNeed","major":"sfuknkbjkbbhj","address":"Dydjcjupt7ufyf","ashesiId":"12457800","pic":"default_profile.jpg","doc":"default_document.pdf","userId":19}
+[2025-05-07 04:11:31] Original date: 05/15/2007
+[2025-05-07 04:11:31] Converted date to: 2007-05-15
+[2025-05-07 04:11:31] Database connection established
+[2025-05-07 04:11:31] Generated application number: 612567347
+[2025-05-07 04:11:31] Executing SQL: INSERT INTO tblapply(SchemeId, ApplicationNumber, UserID, DateofBirth, Gender, Category, Major, Address, AshesiID, ProfilePic, DocReq, Status, ApplyDate) 
+            VALUES (:schemeid, :appnum, :uid, :dob, :gender, :category, :major, :address, :ashesiID, :pic, :doc, '0', NOW())
+[2025-05-07 04:11:31] Parameters: SchemeId=6, DateofBirth=2007-05-15, Gender=Female, Category=HighNeed, Major=sfuknkbjkbbhj, Address=Dydjcjupt7ufyf, AshesiID=12457800
+[2025-05-07 04:11:31] Insert successful. ID: 38, Application Number: 612567347
+[2025-05-07 04:19:40] Request received: POST with URI /ASMSLive/mobile_asms/direct_insert.php
+[2025-05-07 04:19:40] Raw input: {"schemeId":2,"dateOfBirth":"05/17/2007","gender":"Other","category":"HighNeed","major":"dguiighiogji","address":"Gjohgkofgjdfuifyuif","ashesiId":"78567756","pic":"default_profile.jpg","doc":"default_document.pdf","userId":19}
+[2025-05-07 04:19:40] Received data: {"schemeId":2,"dateOfBirth":"05\/17\/2007","gender":"Other","category":"HighNeed","major":"dguiighiogji","address":"Gjohgkofgjdfuifyuif","ashesiId":"78567756","pic":"default_profile.jpg","doc":"default_document.pdf","userId":19}
+[2025-05-07 04:19:40] Original date: 05/17/2007
+[2025-05-07 04:19:40] Converted date to: 2007-05-17
+[2025-05-07 04:19:40] Database connection established
+[2025-05-07 04:19:40] Generated application number: 382754871
+[2025-05-07 04:19:40] Executing SQL: INSERT INTO tblapply(SchemeId, ApplicationNumber, UserID, DateofBirth, Gender, Category, Major, Address, AshesiID, ProfilePic, DocReq, Status, ApplyDate) 
+            VALUES (:schemeid, :appnum, :uid, :dob, :gender, :category, :major, :address, :ashesiID, :pic, :doc, '0', NOW())
+[2025-05-07 04:19:40] Parameters: SchemeId=2, DateofBirth=2007-05-17, Gender=Other, Category=HighNeed, Major=dguiighiogji, Address=Gjohgkofgjdfuifyuif, AshesiID=78567756
+[2025-05-07 04:19:40] Insert successful. ID: 39, Application Number: 382754871
+[2025-05-07 04:36:44] Request received: POST with URI /ASMSLive/mobile_asms/direct_insert.php
+[2025-05-07 04:36:44] Raw input: {"schemeId":1,"dateOfBirth":"05/18/2007","gender":"Male","category":"HighNeed","major":"ttffttffttgf","address":"Fffffccccccc","ashesiId":"00000989","pic":"default_profile.jpg","doc":"default_document.pdf","userId":19}
+[2025-05-07 04:36:44] Received data: {"schemeId":1,"dateOfBirth":"05\/18\/2007","gender":"Male","category":"HighNeed","major":"ttffttffttgf","address":"Fffffccccccc","ashesiId":"00000989","pic":"default_profile.jpg","doc":"default_document.pdf","userId":19}
+[2025-05-07 04:36:44] Original date: 05/18/2007
+[2025-05-07 04:36:44] Converted date to: 2007-05-18
+[2025-05-07 04:36:44] Database connection established
+[2025-05-07 04:36:44] Generated application number: 837964480
+[2025-05-07 04:36:44] Executing SQL: INSERT INTO tblapply(SchemeId, ApplicationNumber, UserID, DateofBirth, Gender, Category, Major, Address, AshesiID, ProfilePic, DocReq, Status, ApplyDate) 
+            VALUES (:schemeid, :appnum, :uid, :dob, :gender, :category, :major, :address, :ashesiID, :pic, :doc, '0', NOW())
+[2025-05-07 04:36:44] Parameters: SchemeId=1, DateofBirth=2007-05-18, Gender=Male, Category=HighNeed, Major=ttffttffttgf, Address=Fffffccccccc, AshesiID=00000989
+[2025-05-07 04:36:44] Insert successful. ID: 40, Application Number: 837964480

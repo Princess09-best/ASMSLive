@@ -26,18 +26,30 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
     super.initState();
     _checkConnectivity();
     _loadApplications();
-    _syncPendingApplications();
 
-    // Listen for connectivity changes
-    _connectivityService.listenToConnectivityChanges((isConnected) {
-      setState(() {
-        _isConnected = isConnected;
-      });
+    // Register for connectivity updates
+    _connectivityService.listenToConnectivityChanges(_handleConnectivityChange);
+  }
 
-      if (isConnected) {
-        _syncPendingApplications();
-      }
+  @override
+  void dispose() {
+    // Unregister from connectivity updates
+    _connectivityService
+        .unregisterConnectivityChanges(_handleConnectivityChange);
+    super.dispose();
+  }
+
+  // Handle connectivity changes
+  void _handleConnectivityChange(bool isConnected) {
+    setState(() {
+      _isConnected = isConnected;
     });
+
+    if (isConnected) {
+      // Just reload applications when connection is restored
+      // The auto-sync will happen via the ConnectivityService
+      _loadApplications();
+    }
   }
 
   Future<void> _checkConnectivity() async {
@@ -74,7 +86,8 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
     });
   }
 
-  Future<void> _syncPendingApplications() async {
+  // Manual sync - initiated by user from the UI
+  Future<void> _manualSyncPendingApplications() async {
     try {
       // Get the current user ID from AuthProvider
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
@@ -106,7 +119,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
       final currentUserId = authProvider.currentUser?.id;
 
       if (currentUserId != null) {
-        await _syncPendingApplications();
+        await _manualSyncPendingApplications();
       }
     }
   }
@@ -128,7 +141,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                         const SnackBar(
                             content: Text('Syncing pending applications...')),
                       );
-                      await _syncPendingApplications();
+                      await _manualSyncPendingApplications();
                       ScaffoldMessenger.of(context).hideCurrentSnackBar();
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Sync complete!')),

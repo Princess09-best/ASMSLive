@@ -639,13 +639,13 @@ class ApplicationService {
   }
 
   // Sync pending applications
-  static Future<void> syncPendingApplications({int? userId}) async {
+  static Future<bool> syncPendingApplications({int? userId}) async {
     try {
       bool isConnected = await _connectivityService.isConnected();
 
       if (!isConnected) {
         print('Not connected to the internet. Skipping sync.');
-        return;
+        return false;
       }
 
       print('Starting to sync pending applications...');
@@ -675,7 +675,7 @@ class ApplicationService {
 
       if (result.isEmpty) {
         print('No pending applications to sync');
-        return;
+        return false;
       }
 
       // Initialize notification service
@@ -822,8 +822,10 @@ class ApplicationService {
       }
 
       print('Finished syncing pending applications');
+      return anySuccess;
     } catch (e) {
       print('Error syncing pending applications: $e');
+      return false;
     }
   }
 
