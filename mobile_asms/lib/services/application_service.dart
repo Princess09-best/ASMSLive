@@ -638,7 +638,7 @@ class ApplicationService {
   }
 
   // Sync pending applications
-  static Future<void> syncPendingApplications() async {
+  static Future<void> syncPendingApplications({int? userId}) async {
     try {
       bool isConnected = await _connectivityService.isConnected();
 
@@ -651,10 +651,23 @@ class ApplicationService {
       await initApplicationDatabase();
 
       final db = await _databaseHelper.database;
+
+      // Build query based on whether userId is provided
+      String whereClause = 'isSynced = ?';
+      List<dynamic> whereArgs = [0];
+
+      if (userId != null) {
+        whereClause += ' AND userId = ?';
+        whereArgs.add(userId);
+        print('Filtering pending applications for user ID: $userId');
+      } else {
+        print('Syncing all pending applications regardless of user');
+      }
+
       final result = await db.query(
         'applications',
-        where: 'isSynced = ?',
-        whereArgs: [0],
+        where: whereClause,
+        whereArgs: whereArgs,
       );
 
       print('Found ${result.length} pending applications to sync');
@@ -769,6 +782,33 @@ class ApplicationService {
       print('Finished syncing pending applications');
     } catch (e) {
       print('Error syncing pending applications: $e');
+    }
+  }
+
+  // Get applications by user ID
+  static Future<List<Application>> getApplicationsByUserId(int? userId) async {
+    try {
+      await initApplicationDatabase();
+
+      if (userId == null) {
+        print(
+            'Warning: Null userId in getApplicationsByUserId, returning empty list');
+        return [];
+      }
+
+      final db = await _databaseHelper.database;
+      final result = await db.query(
+        'applications',
+        where: 'userId = ?',
+        whereArgs: [userId],
+        orderBy: 'appliedDate DESC',
+      );
+
+      print('Found ${result.length} applications for user ID: $userId');
+      return result.map((map) => Application.fromMap(map)).toList();
+    } catch (e) {
+      print('Error getting applications by user ID: $e');
+      return [];
     }
   }
 }

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
+import 'package:provider/provider.dart';
 import '../config/app_constants.dart';
 import '../models/application.dart';
 import '../services/application_service.dart';
 import '../services/connectivity_service.dart';
+import '../providers/auth_provider.dart';
 
 class ApplicationsScreen extends StatefulWidget {
   const ApplicationsScreen({super.key});
@@ -50,7 +52,21 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
       _isLoading = true;
     });
 
-    final applications = await ApplicationService.getApplications();
+    // Get the current user ID from AuthProvider
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final currentUserId = authProvider.currentUser?.id;
+
+    List<Application> applications = [];
+    if (currentUserId != null) {
+      // Load only current user's applications
+      applications =
+          await ApplicationService.getApplicationsByUserId(currentUserId);
+      print(
+          'Loaded ${applications.length} applications for user ID: $currentUserId');
+    } else {
+      print(
+          'Warning: No user logged in or user ID is null. Cannot load applications.');
+    }
 
     setState(() {
       _applications = applications;
@@ -60,7 +76,18 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
 
   Future<void> _syncPendingApplications() async {
     try {
-      bool synced = await _connectivityService.syncIfConnected();
+      // Get the current user ID from AuthProvider
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final currentUserId = authProvider.currentUser?.id;
+
+      if (currentUserId == null) {
+        print(
+            'Warning: No user logged in or user ID is null. Cannot sync applications.');
+        return;
+      }
+
+      bool synced =
+          await _connectivityService.syncIfConnected(userId: currentUserId);
       if (synced) {
         // Reload applications to show updated status
         await _loadApplications();
@@ -72,8 +99,15 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
 
   Future<void> _refreshApplications() async {
     await _loadApplications();
+
     if (_isConnected) {
-      await _syncPendingApplications();
+      // Get the current user ID from AuthProvider
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final currentUserId = authProvider.currentUser?.id;
+
+      if (currentUserId != null) {
+        await _syncPendingApplications();
+      }
     }
   }
 
@@ -194,10 +228,18 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
             ),
             const SizedBox(height: 8),
             const Text(
-              'Apply for scholarships to see them here',
+              'You have not submitted any scholarship applications yet.',
               style: TextStyle(
                 color: AppConstants.textSecondaryColor,
               ),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () {
+                // Navigate to scholarships screen
+                Navigator.pushNamed(context, '/scholarships');
+              },
+              child: const Text('Browse Scholarships'),
             ),
           ],
         ),

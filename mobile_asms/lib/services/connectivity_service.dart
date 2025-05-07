@@ -61,11 +61,11 @@ class ConnectivityService {
   }
 
   // Manually trigger a sync if connected
-  Future<bool> syncIfConnected() async {
+  Future<bool> syncIfConnected({int? userId}) async {
     final connected = await isConnected();
     if (connected) {
       try {
-        await ApplicationService.syncPendingApplications();
+        await ApplicationService.syncPendingApplications(userId: userId);
         return true;
       } catch (e) {
         print('Error during manual sync: $e');
