@@ -328,3 +328,22 @@
             VALUES (:schemeid, :appnum, :uid, :dob, :gender, :category, :major, :address, :ashesiID, :pic, :doc, '0', NOW())
 [2025-05-07 09:59:16] Parameters: SchemeId=2, DateofBirth=2007-05-23, Gender=Male, Category=HighNeed, Major=eork, Address=Work well, AshesiID=22334455
 [2025-05-07 09:59:16] Insert successful. ID: 45, Application Number: 514940516
+[2025-05-07 11:07:51] File Upload - Request received: POST with URI /ASMSLive/mobile_asms/file_upload.php
+[2025-05-07 11:07:51] Processing file upload: {"fileType":"profile"}
+[2025-05-07 11:07:51] Files received: ["profilePic"]
+[2025-05-07 11:07:51] File uploaded successfully to: ../users/proimages/277519f5488fe551897e528b55fd6ccf1746608871.jpg
+[2025-05-07 11:07:51] File Upload - Request received: POST with URI /ASMSLive/mobile_asms/file_upload.php
+[2025-05-07 11:07:51] Processing file upload: {"fileType":"document"}
+[2025-05-07 11:07:51] Files received: ["document"]
+[2025-05-07 11:07:51] File uploaded successfully to: ../users/document/b4804e6c12c6fc0e6845f7cb87a0dfc11746608871.pdf
+[2025-05-07 11:07:51] Request received: POST with URI /ASMSLive/mobile_asms/direct_insert.php
+[2025-05-07 11:07:51] Raw input: {"schemeId":2,"dateOfBirth":"05/10/2007","gender":"Female","category":"HighNeed","major":"gjfkpbgds","address":"Bwkehebrbh4bb5","ashesiId":"56789007","pic":"277519f5488fe551897e528b55fd6ccf1746608871.jpg","doc":"b4804e6c12c6fc0e6845f7cb87a0dfc11746608871.pdf","userId":19}
+[2025-05-07 11:07:51] Received data: {"schemeId":2,"dateOfBirth":"05\/10\/2007","gender":"Female","category":"HighNeed","major":"gjfkpbgds","address":"Bwkehebrbh4bb5","ashesiId":"56789007","pic":"277519f5488fe551897e528b55fd6ccf1746608871.jpg","doc":"b4804e6c12c6fc0e6845f7cb87a0dfc11746608871.pdf","userId":19}
+[2025-05-07 11:07:51] Original date: 05/10/2007
+[2025-05-07 11:07:51] Converted date to: 2007-05-10
+[2025-05-07 11:07:51] Database connection established
+[2025-05-07 11:07:51] Generated application number: 589409305
+[2025-05-07 11:07:51] Executing SQL: INSERT INTO tblapply(SchemeId, ApplicationNumber, UserID, DateofBirth, Gender, Category, Major, Address, AshesiID, ProfilePic, DocReq, Status, ApplyDate) 
+            VALUES (:schemeid, :appnum, :uid, :dob, :gender, :category, :major, :address, :ashesiID, :pic, :doc, '', NOW())
+[2025-05-07 11:07:51] Parameters: SchemeId=2, DateofBirth=2007-05-10, Gender=Female, Category=HighNeed, Major=gjfkpbgds, Address=Bwkehebrbh4bb5, AshesiID=56789007
+[2025-05-07 11:07:51] Insert successful. ID: 46, Application Number: 589409305

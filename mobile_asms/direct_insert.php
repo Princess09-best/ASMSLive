@@ -104,7 +104,7 @@ try {
     
     // Prepare the SQL statement - match column names EXACTLY as in the database
     $sql = "INSERT INTO tblapply(SchemeId, ApplicationNumber, UserID, DateofBirth, Gender, Category, Major, Address, AshesiID, ProfilePic, DocReq, Status, ApplyDate) 
-            VALUES (:schemeid, :appnum, :uid, :dob, :gender, :category, :major, :address, :ashesiID, :pic, :doc, '0', NOW())";
+            VALUES (:schemeid, :appnum, :uid, :dob, :gender, :category, :major, :address, :ashesiID, :pic, :doc, '', NOW())";
             
     debug_log("Executing SQL: " . $sql);
     debug_log("Parameters: SchemeId=" . $schemeId . ", DateofBirth=" . $dateOfBirth . 
