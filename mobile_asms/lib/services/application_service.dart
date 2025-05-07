@@ -198,6 +198,8 @@ class ApplicationService {
               homeAddress: homeAddress,
               studentId: studentId,
               userId: userId,
+              passportPhoto: passportPhoto,
+              document: document,
             );
 
             if (directResult.success) {
@@ -311,12 +313,103 @@ class ApplicationService {
     required String homeAddress,
     required String studentId,
     int? userId,
+    File? passportPhoto,
+    File? document,
   }) async {
     try {
       // If userId is null, try to get it from auth service
       if (userId == null) {
         final currentUser = await _authService.getCurrentUser();
         userId = currentUser?.id ?? 1; // Fallback to 1 if all else fails
+      }
+
+      // Upload passport photo if provided
+      String profilePic = 'default_profile.jpg';
+      if (passportPhoto != null) {
+        try {
+          const String host =
+              "172.16.5.8"; // Hardcoded to prevent any confusion
+          final profileUploadUrl =
+              'http://$host/ASMSLive/mobile_asms/file_upload.php';
+
+          // Create multipart request for profile photo
+          var profileRequest =
+              http.MultipartRequest('POST', Uri.parse(profileUploadUrl));
+
+          // Add file
+          var profileStream = http.ByteStream(passportPhoto.openRead());
+          var profileLength = await passportPhoto.length();
+          var profileMultipartFile = http.MultipartFile(
+              'profilePic', profileStream, profileLength,
+              filename: passportPhoto.path.split('/').last);
+
+          profileRequest.files.add(profileMultipartFile);
+          profileRequest.fields['fileType'] = 'profile';
+
+          // Send the request
+          var profileResponse = await profileRequest.send();
+          var profileResponseData =
+              await http.Response.fromStream(profileResponse);
+
+          print('Profile pic upload response: ${profileResponseData.body}');
+
+          if (profileResponse.statusCode == 200) {
+            final responseJson = json.decode(profileResponseData.body);
+            if (responseJson['success'] == true) {
+              profilePic = responseJson['filename'];
+              print('Profile pic uploaded successfully: $profilePic');
+            }
+          } else {
+            print('Failed to upload profile pic: ${profileResponseData.body}');
+          }
+        } catch (e) {
+          print('Error uploading profile pic: $e');
+          // Continue with default profile pic
+        }
+      }
+
+      // Upload document if provided
+      String docReq = 'default_document.pdf';
+      if (document != null) {
+        try {
+          const String host =
+              "172.16.5.8"; // Hardcoded to prevent any confusion
+          final docUploadUrl =
+              'http://$host/ASMSLive/mobile_asms/file_upload.php';
+
+          // Create multipart request for document
+          var docRequest =
+              http.MultipartRequest('POST', Uri.parse(docUploadUrl));
+
+          // Add file
+          var docStream = http.ByteStream(document.openRead());
+          var docLength = await document.length();
+          var docMultipartFile = http.MultipartFile(
+              'document', docStream, docLength,
+              filename: document.path.split('/').last);
+
+          docRequest.files.add(docMultipartFile);
+          docRequest.fields['fileType'] = 'document';
+
+          // Send the request
+          var docResponse = await docRequest.send();
+          var docResponseData = await http.Response.fromStream(docResponse);
+
+          print('Document upload response: ${docResponseData.body}');
+
+          if (docResponse.statusCode == 200) {
+            final responseJson = json.decode(docResponseData.body);
+            if (responseJson['success'] == true) {
+              docReq = responseJson['filename'];
+              print('Document uploaded successfully: $docReq');
+            }
+          } else {
+            print('Failed to upload document: ${docResponseData.body}');
+          }
+        } catch (e) {
+          print('Error uploading document: $e');
+          // Continue with default document
+        }
       }
 
       // Direct insert using our temporary PHP script
@@ -332,8 +425,8 @@ class ApplicationService {
         'major': major,
         'address': homeAddress,
         'ashesiId': studentId,
-        'pic': 'default_profile.jpg',
-        'doc': 'default_document.pdf',
+        'pic': profilePic,
+        'doc': docReq,
         'userId': userId,
       };
 
@@ -479,9 +572,93 @@ class ApplicationService {
         );
       }
 
-      // The backend expects a JSON request, not multipart form
+      // First, upload the passport photo
+      print('Uploading passport photo...');
+      String profilePic = 'default_profile.jpg';
+      try {
+        const String host = "172.16.5.8"; // Hardcoded to prevent any confusion
+        final profileUploadUrl =
+            'http://$host/ASMSLive/mobile_asms/file_upload.php';
+
+        // Create multipart request for profile photo
+        var profileRequest =
+            http.MultipartRequest('POST', Uri.parse(profileUploadUrl));
+
+        // Add file
+        var profileStream = http.ByteStream(passportPhoto.openRead());
+        var profileLength = await passportPhoto.length();
+        var profileMultipartFile = http.MultipartFile(
+            'profilePic', profileStream, profileLength,
+            filename: passportPhoto.path.split('/').last);
+
+        profileRequest.files.add(profileMultipartFile);
+        profileRequest.fields['fileType'] = 'profile';
+
+        // Send the request
+        var profileResponse = await profileRequest.send();
+        var profileResponseData =
+            await http.Response.fromStream(profileResponse);
+
+        print('Profile pic upload response: ${profileResponseData.body}');
+
+        if (profileResponse.statusCode == 200) {
+          final responseJson = json.decode(profileResponseData.body);
+          if (responseJson['success'] == true) {
+            profilePic = responseJson['filename'];
+            print('Profile pic uploaded successfully: $profilePic');
+          }
+        } else {
+          print('Failed to upload profile pic: ${profileResponseData.body}');
+        }
+      } catch (e) {
+        print('Error uploading profile pic: $e');
+        // Continue with default profile pic
+      }
+
+      // Then, upload the document
+      print('Uploading document...');
+      String docReq = 'default_document.pdf';
+      try {
+        const String host = "172.16.5.8"; // Hardcoded to prevent any confusion
+        final docUploadUrl =
+            'http://$host/ASMSLive/mobile_asms/file_upload.php';
+
+        // Create multipart request for document
+        var docRequest = http.MultipartRequest('POST', Uri.parse(docUploadUrl));
+
+        // Add file
+        var docStream = http.ByteStream(document.openRead());
+        var docLength = await document.length();
+        var docMultipartFile = http.MultipartFile(
+            'document', docStream, docLength,
+            filename: document.path.split('/').last);
+
+        docRequest.files.add(docMultipartFile);
+        docRequest.fields['fileType'] = 'document';
+
+        // Send the request
+        var docResponse = await docRequest.send();
+        var docResponseData = await http.Response.fromStream(docResponse);
+
+        print('Document upload response: ${docResponseData.body}');
+
+        if (docResponse.statusCode == 200) {
+          final responseJson = json.decode(docResponseData.body);
+          if (responseJson['success'] == true) {
+            docReq = responseJson['filename'];
+            print('Document uploaded successfully: $docReq');
+          }
+        } else {
+          print('Failed to upload document: ${docResponseData.body}');
+        }
+      } catch (e) {
+        print('Error uploading document: $e');
+        // Continue with default document
+      }
+
+      // Now submit the application with the uploaded file names
       final url = '${ApiConfig.baseUrl}${ApiConfig.submitApplication}';
-      print('Submitting to URL: $url');
+      print('Submitting application to URL: $url');
 
       // Prepare the request body with the expected field names
       final Map<String, dynamic> requestBody = {
@@ -493,6 +670,8 @@ class ApplicationService {
         'address': homeAddress, // lowercase as expected by backend
         'ashesiId': studentId, // lowercase as expected by backend
         'userId': userId, // Add user ID
+        'pic': profilePic, // Add the uploaded profile pic filename
+        'doc': docReq, // Add the uploaded document filename
       };
 
       print('Request body: $requestBody');
@@ -696,6 +875,34 @@ class ApplicationService {
         try {
           // First try API method
           print('Trying API submission for application ID: ${application.id}');
+
+          // Load the files from local storage if they exist
+          File? passportPhotoFile;
+          File? documentFile;
+
+          try {
+            if (application.passportPhotoPath.isNotEmpty) {
+              passportPhotoFile = File(application.passportPhotoPath);
+              if (!await passportPhotoFile.exists()) {
+                print(
+                    'Passport photo file does not exist: ${application.passportPhotoPath}');
+                passportPhotoFile = null;
+              }
+            }
+
+            if (application.documentPath.isNotEmpty) {
+              documentFile = File(application.documentPath);
+              if (!await documentFile.exists()) {
+                print(
+                    'Document file does not exist: ${application.documentPath}');
+                documentFile = null;
+              }
+            }
+          } catch (e) {
+            print('Error loading files: $e');
+            // Continue without files if there's an error
+          }
+
           // Create multipart request
           final token = await _apiService.getToken();
           if (token == null) {
@@ -703,6 +910,83 @@ class ApplicationService {
             // Continue to direct DB method
           } else {
             final url = '${ApiConfig.baseUrl}${ApiConfig.submitApplication}';
+
+            // First try to upload the files using our file upload endpoint
+            String profilePic = 'default_profile.jpg';
+            String docReq = 'default_document.pdf';
+
+            // Upload passport photo if available
+            if (passportPhotoFile != null) {
+              try {
+                const String host =
+                    "172.16.5.8"; // Hardcoded to prevent any confusion
+                final profileUploadUrl =
+                    'http://$host/ASMSLive/mobile_asms/file_upload.php';
+
+                var profileRequest =
+                    http.MultipartRequest('POST', Uri.parse(profileUploadUrl));
+
+                var profileStream =
+                    http.ByteStream(passportPhotoFile.openRead());
+                var profileLength = await passportPhotoFile.length();
+                var profileMultipartFile = http.MultipartFile(
+                    'profilePic', profileStream, profileLength,
+                    filename: passportPhotoFile.path.split('/').last);
+
+                profileRequest.files.add(profileMultipartFile);
+                profileRequest.fields['fileType'] = 'profile';
+
+                var profileResponse = await profileRequest.send();
+                var profileResponseData =
+                    await http.Response.fromStream(profileResponse);
+
+                if (profileResponse.statusCode == 200) {
+                  final responseJson = json.decode(profileResponseData.body);
+                  if (responseJson['success'] == true) {
+                    profilePic = responseJson['filename'];
+                    print('Profile pic uploaded successfully: $profilePic');
+                  }
+                }
+              } catch (e) {
+                print('Error uploading profile pic: $e');
+              }
+            }
+
+            // Upload document if available
+            if (documentFile != null) {
+              try {
+                const String host =
+                    "172.16.5.8"; // Hardcoded to prevent any confusion
+                final docUploadUrl =
+                    'http://$host/ASMSLive/mobile_asms/file_upload.php';
+
+                var docRequest =
+                    http.MultipartRequest('POST', Uri.parse(docUploadUrl));
+
+                var docStream = http.ByteStream(documentFile.openRead());
+                var docLength = await documentFile.length();
+                var docMultipartFile = http.MultipartFile(
+                    'document', docStream, docLength,
+                    filename: documentFile.path.split('/').last);
+
+                docRequest.files.add(docMultipartFile);
+                docRequest.fields['fileType'] = 'document';
+
+                var docResponse = await docRequest.send();
+                var docResponseData =
+                    await http.Response.fromStream(docResponse);
+
+                if (docResponse.statusCode == 200) {
+                  final responseJson = json.decode(docResponseData.body);
+                  if (responseJson['success'] == true) {
+                    docReq = responseJson['filename'];
+                    print('Document uploaded successfully: $docReq');
+                  }
+                }
+              } catch (e) {
+                print('Error uploading document: $e');
+              }
+            }
 
             // Prepare request body with lowercase field names as expected by backend
             final Map<String, dynamic> requestBody = {
@@ -714,6 +998,8 @@ class ApplicationService {
               'address': application.homeAddress,
               'ashesiId': application.studentId,
               'userId': application.userId,
+              'pic': profilePic,
+              'doc': docReq,
             };
 
             // Send the request as JSON
@@ -753,6 +1039,8 @@ class ApplicationService {
                 homeAddress: application.homeAddress,
                 studentId: application.studentId,
                 userId: application.userId,
+                passportPhoto: passportPhotoFile,
+                document: documentFile,
               );
 
               success = result.success;

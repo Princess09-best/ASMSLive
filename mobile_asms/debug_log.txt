@@ -242,3 +242,89 @@
             VALUES (:schemeid, :appnum, :uid, :dob, :gender, :category, :major, :address, :ashesiID, :pic, :doc, '0', NOW())
 [2025-05-07 04:36:44] Parameters: SchemeId=1, DateofBirth=2007-05-18, Gender=Male, Category=HighNeed, Major=ttffttffttgf, Address=Fffffccccccc, AshesiID=00000989
 [2025-05-07 04:36:44] Insert successful. ID: 40, Application Number: 837964480
+[2025-05-07 05:58:24] Request received: POST with URI /ASMSLive/mobile_asms/direct_insert.php
+[2025-05-07 05:58:24] Content-Type: multipart/form-data; boundary=dart-http-boundary-i86uATBs9srM4TrC1XyyNK+Af3Ikgeocr_kt_aIFp+CyT8yQkPo
+[2025-05-07 05:58:24] Processing multipart/form-data request
+[2025-05-07 05:58:24] Form data: {"schemeId":"2","dateOfBirth":"05\/17\/2007","gender":"Male","category":"HighNeed","major":"hjpbbybjki","address":"Gh uni kyg","ashesiId":"56473829","userId":"19"}
+[2025-05-07 05:58:24] FILES data: {"pic":{"name":"scaled_245b8acc-ad3e-45b9-b6d9-cde9227290ae1247756899041483424.jpg","type":"application\/octet-stream","tmp_name":"C:\\xampp\\tmp\\php80B9.tmp","error":0,"size":16853},"reqdoc":{"name":"doc_scan_1746590294099.pdf","type":"application\/octet-stream","tmp_name":"C:\\xampp\\tmp\\php80BA.tmp","error":0,"size":1250324}}
+[2025-05-07 05:58:24] Profile pic uploaded successfully to: ../proimages/75744fdb8c8622ae652ad0f12cc5c7271746590304.jpg
+[2025-05-07 05:58:24] Document uploaded successfully to: ../document/479ae68c49d80c485e124955140e4d831746590304.pdf
+[2025-05-07 05:58:24] Original date: 05/17/2007
+[2025-05-07 05:58:24] Converted date to: 2007-05-17
+[2025-05-07 05:58:24] Database connection established
+[2025-05-07 05:58:24] Generated application number: 551072065
+[2025-05-07 05:58:24] Executing SQL: INSERT INTO tblapply(SchemeId, ApplicationNumber, UserID, DateofBirth, Gender, Category, Major, Address, AshesiID, ProfilePic, DocReq, Status, ApplyDate) 
+            VALUES (:schemeid, :appnum, :uid, :dob, :gender, :category, :major, :address, :ashesiID, :pic, :doc, '0', NOW())
+[2025-05-07 05:58:24] Parameters: SchemeId=2, DateofBirth=2007-05-17, Gender=Male, Category=HighNeed, Major=hjpbbybjki, Address=Gh uni kyg, AshesiID=56473829, ProfilePic=75744fdb8c8622ae652ad0f12cc5c7271746590304.jpg, DocReq=479ae68c49d80c485e124955140e4d831746590304.pdf
+[2025-05-07 05:58:24] Insert successful. ID: 41, Application Number: 551072065
+[2025-05-07 06:08:02] Request received: POST with URI /ASMSLive/mobile_asms/direct_insert.php
+[2025-05-07 06:08:02] Content-Type: multipart/form-data; boundary=dart-http-boundary-NrC_v5DnZZVvlhY+TM9b69ttsDyuED+v3o4BUtjM9QkSnCJhheq
+[2025-05-07 06:08:02] Processing multipart form data with file uploads
+[2025-05-07 06:08:02] Form data: {"schemeId":"2","dateOfBirth":"05\/01\/2008","gender":"Male","category":"HighNeed","major":"thg","address":"Thyk","ashesiId":"45678908","userId":"19"}
+[2025-05-07 06:08:02] Profile picture uploaded successfully: 9e7baf529b6b253d0b593a79d10c4b181746590882.jpg
+[2025-05-07 06:08:02] Document uploaded successfully: 79426348f75fd2e73c51d353ecc6adbb1746590882.pdf
+[2025-05-07 06:08:02] Received data: {"schemeId":"2","dateOfBirth":"05\/01\/2008","gender":"Male","category":"HighNeed","major":"thg","address":"Thyk","ashesiId":"45678908","userId":"19"}
+[2025-05-07 06:08:02] Original date: 05/01/2008
+[2025-05-07 06:08:02] Converted date to: 2008-05-01
+[2025-05-07 06:08:02] Database connection established
+[2025-05-07 06:08:02] Generated application number: 813213786
+[2025-05-07 06:08:02] Executing SQL: INSERT INTO tblapply(SchemeId, ApplicationNumber, UserID, DateofBirth, Gender, Category, Major, Address, AshesiID, ProfilePic, DocReq, Status, ApplyDate) 
+            VALUES (:schemeid, :appnum, :uid, :dob, :gender, :category, :major, :address, :ashesiID, :pic, :doc, '0', NOW())
+[2025-05-07 06:08:02] Parameters: SchemeId=2, DateofBirth=2008-05-01, Gender=Male, Category=HighNeed, Major=thg, Address=Thyk, AshesiID=45678908, ProfilePic=9e7baf529b6b253d0b593a79d10c4b181746590882.jpg, DocReq=79426348f75fd2e73c51d353ecc6adbb1746590882.pdf
+[2025-05-07 06:08:02] Insert successful. ID: 42, Application Number: 813213786
+[2025-05-07 06:12:27] Request received: GET with URI /ASMSLive/mobile_asms/direct_insert.php
+[2025-05-07 06:12:27] Method not allowed: GET
+[2025-05-07 06:13:21] Request received: POST with URI /ASMSLive/mobile_asms/direct_insert.php
+[2025-05-07 06:13:21] Content-Type: multipart/form-data; boundary=------------------------AX4wisD1uhhOxBKT7Kzbxr
+[2025-05-07 06:13:21] Processing multipart form data with file uploads
+[2025-05-07 06:13:21] Form data: {"schemeId":"1","dateOfBirth":"05\/31\/2007","gender":"Male","category":"HighNeed","major":"test_major","address":"test_address","ashesiId":"12345678","userId":"19"}
+[2025-05-07 06:13:21] FILES data: {"pic":{"name":".gitignore","type":"application\/octet-stream","tmp_name":"C:\\xampp\\tmp\\php321C.tmp","error":0,"size":754}}
+[2025-05-07 06:13:21] Error: Invalid profile picture format. Only jpg, jpeg, png, or gif allowed.
+[2025-05-07 09:36:29] File Upload - Request received: POST with URI /ASMSLive/mobile_asms/file_upload.php
+[2025-05-07 09:36:29] Processing file upload: {"fileType":"profile"}
+[2025-05-07 09:36:29] Files received: ["profilePic"]
+[2025-05-07 09:36:29] File uploaded successfully to: ../proimages/64d3fe9b9040bce308a70773279099f11746603389.jpg
+[2025-05-07 09:36:29] File Upload - Request received: POST with URI /ASMSLive/mobile_asms/file_upload.php
+[2025-05-07 09:36:29] Processing file upload: {"fileType":"document"}
+[2025-05-07 09:36:29] Files received: ["document"]
+[2025-05-07 09:36:29] File uploaded successfully to: ../document/eb8dd3683a1126ecf426c85046581a621746603389.pdf
+[2025-05-07 09:36:29] Request received: POST with URI /ASMSLive/mobile_asms/direct_insert.php
+[2025-05-07 09:36:29] Raw input: {"schemeId":6,"dateOfBirth":"05/24/2007","gender":"Male","category":"HighNeed","major":"ghjkkkkkkk","address":"Ergbnolkmb","ashesiId":"23456689","pic":"64d3fe9b9040bce308a70773279099f11746603389.jpg","doc":"eb8dd3683a1126ecf426c85046581a621746603389.pdf","userId":19}
+[2025-05-07 09:36:29] Received data: {"schemeId":6,"dateOfBirth":"05\/24\/2007","gender":"Male","category":"HighNeed","major":"ghjkkkkkkk","address":"Ergbnolkmb","ashesiId":"23456689","pic":"64d3fe9b9040bce308a70773279099f11746603389.jpg","doc":"eb8dd3683a1126ecf426c85046581a621746603389.pdf","userId":19}
+[2025-05-07 09:36:29] Original date: 05/24/2007
+[2025-05-07 09:36:29] Converted date to: 2007-05-24
+[2025-05-07 09:36:29] Database connection established
+[2025-05-07 09:36:29] Generated application number: 355389586
+[2025-05-07 09:36:29] Executing SQL: INSERT INTO tblapply(SchemeId, ApplicationNumber, UserID, DateofBirth, Gender, Category, Major, Address, AshesiID, ProfilePic, DocReq, Status, ApplyDate) 
+            VALUES (:schemeid, :appnum, :uid, :dob, :gender, :category, :major, :address, :ashesiID, :pic, :doc, '0', NOW())
+[2025-05-07 09:36:29] Parameters: SchemeId=6, DateofBirth=2007-05-24, Gender=Male, Category=HighNeed, Major=ghjkkkkkkk, Address=Ergbnolkmb, AshesiID=23456689
+[2025-05-07 09:36:29] Insert successful. ID: 43, Application Number: 355389586
+[2025-05-07 09:41:58] Checking database structure
+[2025-05-07 09:41:58] Database connection established
+[2025-05-07 09:41:58] Database check completed successfully
+[2025-05-07 09:43:03] Starting test insertion
+[2025-05-07 09:43:03] Database connection established
+[2025-05-07 09:43:03] Executing SQL: INSERT INTO tblapply(SchemeId, ApplicationNumber, UserID, DateofBirth, Gender, Category, Major, Address, AshesiID, ProfilePic, DocReq, Status, ApplyDate) 
+            VALUES (:schemeid, :appnum, :uid, :dob, :gender, :category, :major, :address, :ashesiID, :pic, :doc, '0', NOW())
+[2025-05-07 09:43:03] Statement executed. Rows affected: 1
+[2025-05-07 09:43:03] Last inserted ID: 44
+[2025-05-07 09:43:03] Verification successful. Record found with ID: 44
+[2025-05-07 09:59:16] File Upload - Request received: POST with URI /ASMSLive/mobile_asms/file_upload.php
+[2025-05-07 09:59:16] Processing file upload: {"fileType":"profile"}
+[2025-05-07 09:59:16] Files received: ["profilePic"]
+[2025-05-07 09:59:16] File uploaded successfully to: ../users/proimages/95692f25da10716a9a359040d5b8c59d1746604756.jpg
+[2025-05-07 09:59:16] File Upload - Request received: POST with URI /ASMSLive/mobile_asms/file_upload.php
+[2025-05-07 09:59:16] Processing file upload: {"fileType":"document"}
+[2025-05-07 09:59:16] Files received: ["document"]
+[2025-05-07 09:59:16] File uploaded successfully to: ../users/document/aecdd7bfec471f1942187d9522a3d5451746604756.pdf
+[2025-05-07 09:59:16] Request received: POST with URI /ASMSLive/mobile_asms/direct_insert.php
+[2025-05-07 09:59:16] Raw input: {"schemeId":2,"dateOfBirth":"05/23/2007","gender":"Male","category":"HighNeed","major":"eork","address":"Work well","ashesiId":"22334455","pic":"95692f25da10716a9a359040d5b8c59d1746604756.jpg","doc":"aecdd7bfec471f1942187d9522a3d5451746604756.pdf","userId":19}
+[2025-05-07 09:59:16] Received data: {"schemeId":2,"dateOfBirth":"05\/23\/2007","gender":"Male","category":"HighNeed","major":"eork","address":"Work well","ashesiId":"22334455","pic":"95692f25da10716a9a359040d5b8c59d1746604756.jpg","doc":"aecdd7bfec471f1942187d9522a3d5451746604756.pdf","userId":19}
+[2025-05-07 09:59:16] Original date: 05/23/2007
+[2025-05-07 09:59:16] Converted date to: 2007-05-23
+[2025-05-07 09:59:16] Database connection established
+[2025-05-07 09:59:16] Generated application number: 514940516
+[2025-05-07 09:59:16] Executing SQL: INSERT INTO tblapply(SchemeId, ApplicationNumber, UserID, DateofBirth, Gender, Category, Major, Address, AshesiID, ProfilePic, DocReq, Status, ApplyDate) 
+            VALUES (:schemeid, :appnum, :uid, :dob, :gender, :category, :major, :address, :ashesiID, :pic, :doc, '0', NOW())
+[2025-05-07 09:59:16] Parameters: SchemeId=2, DateofBirth=2007-05-23, Gender=Male, Category=HighNeed, Major=eork, Address=Work well, AshesiID=22334455
+[2025-05-07 09:59:16] Insert successful. ID: 45, Application Number: 514940516
