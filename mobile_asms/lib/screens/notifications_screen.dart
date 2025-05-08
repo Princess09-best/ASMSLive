@@ -64,12 +64,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Future<void> _handleNotificationTap(NotificationModel notification) async {
-    if (notification.isRead) return;
-
     try {
       final notificationProvider =
           Provider.of<NotificationProvider>(context, listen: false);
-      await notificationProvider.markAsRead(notification.id);
+
+      // Mark as read if not already read
+      if (!notification.isRead) {
+        await notificationProvider.markAsRead(notification.id);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Notification marked as read')),
+          );
+        }
+      }
 
       // Handle navigation based on action type
       if (notification.actionType != null && notification.actionId != null) {
@@ -89,9 +96,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         }
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to mark notification as read')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to mark notification as read')),
+        );
+      }
     }
   }
 
@@ -101,6 +110,30 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       appBar: AppBar(
         title: const Text('Notifications'),
         backgroundColor: AppColors.primaryColor,
+        actions: [
+          Consumer<NotificationProvider>(
+            builder: (context, notificationProvider, child) {
+              final hasUnread =
+                  notificationProvider.notifications.any((n) => !n.isRead);
+              if (hasUnread) {
+                return IconButton(
+                  icon: const Icon(Icons.done_all),
+                  tooltip: 'Mark all as read',
+                  onPressed: () async {
+                    await notificationProvider.markAllAsRead();
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('All notifications marked as read')),
+                      );
+                    }
+                  },
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+        ],
       ),
       body: Consumer<NotificationProvider>(
         builder: (context, notificationProvider, child) {

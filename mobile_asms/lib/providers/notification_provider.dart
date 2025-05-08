@@ -65,7 +65,7 @@ class NotificationProvider extends ChangeNotifier {
         final notification = _notifications[index];
         if (!notification.isRead) {
           _notifications[index] = notification.copyWith(isRead: true);
-          _unreadCount = _unreadCount > 0 ? _unreadCount - 1 : 0;
+          _unreadCount = _notifications.where((n) => !n.isRead).length;
           notifyListeners();
         }
       }
