@@ -366,3 +366,22 @@
             VALUES (:schemeid, :appnum, :uid, :dob, :gender, :category, :major, :address, :ashesiID, :pic, :doc, '', NOW())
 [2025-05-08 15:04:37] Parameters: SchemeId=6, DateofBirth=2007-05-24, Gender=Female, Category=HighNeed, Major=gii2ij, Address=What hvv, AshesiID=45678905
 [2025-05-08 15:04:37] Insert successful. ID: 59, Application Number: 581517027
+[2025-05-08 17:22:47] File Upload - Request received: POST with URI /ASMSLive/mobile_asms/file_upload.php
+[2025-05-08 17:22:47] Processing file upload: {"fileType":"profile"}
+[2025-05-08 17:22:47] Files received: ["profilePic"]
+[2025-05-08 17:22:47] Invalid file extension: 
+[2025-05-08 17:22:47] File Upload - Request received: POST with URI /ASMSLive/mobile_asms/file_upload.php
+[2025-05-08 17:22:47] Processing file upload: {"fileType":"document"}
+[2025-05-08 17:22:47] Files received: ["document"]
+[2025-05-08 17:22:47] Invalid file extension: 
+[2025-05-08 17:22:47] Request received: POST with URI /ASMSLive/mobile_asms/direct_insert.php
+[2025-05-08 17:22:47] Raw input: {"schemeId":1,"dateOfBirth":"05/11/2007","gender":"Female","category":"HighNeed","major":"ryjmn","address":"Gkm","ashesiId":"24689647","pic":"default_profile.jpg","doc":"default_document.pdf","userId":19}
+[2025-05-08 17:22:47] Received data: {"schemeId":1,"dateOfBirth":"05\/11\/2007","gender":"Female","category":"HighNeed","major":"ryjmn","address":"Gkm","ashesiId":"24689647","pic":"default_profile.jpg","doc":"default_document.pdf","userId":19}
+[2025-05-08 17:22:47] Original date: 05/11/2007
+[2025-05-08 17:22:47] Converted date to: 2007-05-11
+[2025-05-08 17:22:47] Database connection established
+[2025-05-08 17:22:47] Generated application number: 396082119
+[2025-05-08 17:22:47] Executing SQL: INSERT INTO tblapply(SchemeId, ApplicationNumber, UserID, DateofBirth, Gender, Category, Major, Address, AshesiID, ProfilePic, DocReq, Status, ApplyDate) 
+            VALUES (:schemeid, :appnum, :uid, :dob, :gender, :category, :major, :address, :ashesiID, :pic, :doc, '', NOW())
+[2025-05-08 17:22:47] Parameters: SchemeId=1, DateofBirth=2007-05-11, Gender=Female, Category=HighNeed, Major=ryjmn, Address=Gkm, AshesiID=24689647
+[2025-05-08 17:22:47] Insert successful. ID: 60, Application Number: 396082119

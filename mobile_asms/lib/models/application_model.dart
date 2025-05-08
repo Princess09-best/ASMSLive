@@ -176,4 +176,4 @@ class Document {
   String get formattedUploadDate {
     return DateFormat('MMM dd, yyyy').format(uploadDate);
   }
-} 
+}

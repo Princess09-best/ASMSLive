@@ -79,24 +79,32 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         }
       }
 
-      // Handle navigation based on action type
-      if (notification.actionType != null && notification.actionId != null) {
-        switch (notification.actionType) {
-          case 'view-application':
-            // Navigate to bank details screen
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    BankDetailsScreen(applicationId: notification.actionId!),
-              ),
-            );
-            break;
-          case 'view-scholarship':
-            // TODO: Navigate to scholarship details screen if needed
-            break;
-        }
+      final type = notification.type.toLowerCase();
+      final title = notification.title.toLowerCase();
+      final message = notification.message.toLowerCase();
+
+      // Only allow navigation for approved notifications
+      if (notification.actionType == 'view-application' &&
+          notification.actionId != null &&
+          (type == 'success' ||
+              title.contains('approved') ||
+              message.contains('approved'))) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                BankDetailsScreen(applicationId: notification.actionId!),
+          ),
+        );
+      } else if (type == 'error' ||
+          type == 'warning' ||
+          title.contains('rejected') ||
+          message.contains('rejected')) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('This application was not approved.')),
+        );
       }
+      // For other types, do nothing or handle as needed
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
