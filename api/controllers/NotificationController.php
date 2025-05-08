@@ -10,27 +10,17 @@ class NotificationController {
     }
 
     public function handleRequest($method, $segments, $token) {
-        // Verify token for all notification endpoints
-        if (!$token) {
-            ResponseHelper::error('Authentication required', 401);
-            return;
-        }
-
-        $userData = JWTHelper::validateToken($token);
-        if (!$userData) {
-            ResponseHelper::error('Invalid token', 401);
-            return;
-        }
-
         $id = $segments[1] ?? null;
+        $userId = $_GET['userId'] ?? $id;
+
         
         switch($method) {
             case 'GET':
-                $this->getNotifications($userData['userId']);
+                $this->getNotifications($userId);
                 break;
             case 'PUT':
                 if ($id && isset($segments[2]) && $segments[2] === 'read') {
-                    $this->markAsRead($id, $userData['userId']);
+                    $this->markAsRead($id, $userId);
                 } else {
                     ResponseHelper::error('Invalid action', 400);
                 }

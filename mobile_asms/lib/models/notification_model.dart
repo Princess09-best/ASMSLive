@@ -26,15 +26,20 @@ class NotificationModel {
   // Factory constructor to create a NotificationModel object from a JSON map
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
     return NotificationModel(
-      id: json['id'],
-      userId: json['userId'],
-      title: json['title'],
-      message: json['message'],
-      type: json['type'],
-      createdAt: DateTime.parse(json['createdAt']),
-      isRead: json['isRead'] == 1 || json['isRead'] == true,
-      actionType: json['actionType'],
-      actionId: json['actionId'],
+      id: int.tryParse(json['ID']?.toString() ?? '') ?? 0,
+      userId: int.tryParse(json['UserID']?.toString() ?? '') ?? 0,
+      title: json['Title'] ?? '',
+      message: json['Message'] ?? '',
+      type: json['Type'] ?? '',
+      createdAt:
+          DateTime.parse(json['CreatedAt'] ?? DateTime.now().toIso8601String()),
+      isRead: json['IsRead'] == '1' ||
+          json['IsRead'] == 1 ||
+          json['IsRead'] == true,
+      actionType: json['ActionType'],
+      actionId: json['ActionId'] != null
+          ? int.tryParse(json['ActionId'].toString())
+          : null,
     );
   }
 
@@ -127,4 +132,4 @@ class NotificationModel {
         return '#95a5a6'; // Gray
     }
   }
-} 
+}

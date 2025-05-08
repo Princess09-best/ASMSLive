@@ -6,6 +6,8 @@ error_reporting(E_ALL);
 // Display errors on the screen
 ini_set('display_errors', '1');
 include('includes/dbconnect.php');
+include('includes/notification_helper.php');
+
 if (strlen($_SESSION['aid']==0)) {
   header('location:logout.php');
   } else{
@@ -26,6 +28,26 @@ $query->bindParam(':remark',$remark,PDO::PARAM_STR);
 $query->bindParam(':viewid',$viewid,PDO::PARAM_STR);
 
  $query->execute();
+
+  // Get user ID and scheme name for notification
+  $sql = "SELECT a.UserID, s.SchemeName 
+          FROM tblapply a 
+          JOIN tblscheme s ON a.SchemeId = s.ID 
+          WHERE a.ID = :id";
+  $query2 = $db->prepare($sql);
+  $query2->bindParam(':id', $viewid);
+  $query2->execute();
+  $result = $query2->fetch(PDO::FETCH_ASSOC);
+
+  if ($result) {
+      $notificationHelper = new NotificationHelper($db);
+      $notificationHelper->createApplicationStatusNotification(
+          $result['UserID'],
+          $viewid,
+          $status,
+          $result['SchemeName']
+      );
+  }
 
   echo '<script>alert("Remark has been updated")</script>';
  echo "<script>window.location.href ='all-application.php'</script>";

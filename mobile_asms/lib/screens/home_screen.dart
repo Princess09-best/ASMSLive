@@ -9,6 +9,7 @@ import '../services/connectivity_service.dart';
 import 'applications_screen.dart';
 import '../services/application_service.dart';
 import '../providers/auth_provider.dart';
+import 'notifications_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -183,6 +184,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
             onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const NotificationsScreen()),
+              );
               // TODO: Navigate to notifications screen
             },
           ),

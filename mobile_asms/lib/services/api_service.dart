@@ -65,6 +65,8 @@ class ApiService {
 
     try {
       final response = await http.get(Uri.parse(url), headers: headers);
+      print('API GET: $url');
+      print('Raw response: ${response.body}');
       return _handleResponse(response);
     } on SocketException {
       throw Exception('No internet connection');
