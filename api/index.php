@@ -69,6 +69,10 @@ switch($resource) {
         require_once __DIR__ . '/controllers/NotificationController.php';
         $controller = new NotificationController($db);
         break;
+        case 'bank-details':
+            require_once __DIR__ . '/controllers/BankDetailsController.php';
+            $controller = new BankDetailsController($db);
+            break;
     default:
         http_response_code(404);
         echo json_encode([

@@ -6,6 +6,7 @@ import '../services/api_service.dart';
 import '../utils/app_colors.dart';
 import '../widgets/notification_tile.dart';
 import '../providers/auth_provider.dart';
+import '../screens/bank_details_screen.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({Key? key}) : super(key: key);
@@ -82,16 +83,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       if (notification.actionType != null && notification.actionId != null) {
         switch (notification.actionType) {
           case 'view-application':
-            // Navigate to application details
-            // Navigator.push(context, MaterialPageRoute(
-            //   builder: (context) => ApplicationDetailsScreen(applicationId: notification.actionId!),
-            // ));
+            // Navigate to bank details screen
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    BankDetailsScreen(applicationId: notification.actionId!),
+              ),
+            );
             break;
           case 'view-scholarship':
-            // Navigate to scholarship details
-            // Navigator.push(context, MaterialPageRoute(
-            //   builder: (context) => ScholarshipDetailsScreen(scholarshipId: notification.actionId!),
-            // ));
+            // TODO: Navigate to scholarship details screen if needed
             break;
         }
       }
