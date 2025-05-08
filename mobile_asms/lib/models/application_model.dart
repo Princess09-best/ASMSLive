@@ -9,8 +9,8 @@ class Application {
   final List<Document> documents;
   final String? reviewNotes;
   final DateTime? reviewDate;
-  final String? scholarshipName; // For convenience, included from scholarship
-  final String? providerName; // For convenience, included from scholarship
+  final String? scholarshipName;
+  final String? providerName;
 
   Application({
     required this.id,

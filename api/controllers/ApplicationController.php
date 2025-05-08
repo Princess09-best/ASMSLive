@@ -7,13 +7,13 @@ class ApplicationController {
 
     public function __construct($db) {
         $this->db = $db;
-        // Set upload directories for profile pics and documents
+        // Setting upload directories for profile pics and documents
         $this->uploadDir = [
             'profile' => '../uploads/profile_pictures/',
             'document' => '../uploads/documents/'
         ];
         
-        // Create the upload directories if they don't exist
+        // Creating the upload directories if they don't exist
         foreach ($this->uploadDir as $dir) {
             if (!file_exists($dir)) {
                 mkdir($dir, 0777, true);
@@ -22,7 +22,7 @@ class ApplicationController {
     }
 
     public function handleRequest($method, $segments, $token) {
-        // Verify token for all application endpoints
+        // Verifying the  token for all application endpoints
         if (!$token) {
             http_response_code(401);
             echo json_encode(['error' => 'Authentication required']);
@@ -159,28 +159,28 @@ class ApplicationController {
                 return;
             }
 
-            // Generate application number
+            // Generation of application number
             $applicationNumber = 'APP' . time() . rand(100, 999);
 
-            // Handle file uploads or set default values
+            // Handling file uploads or set default values
             $profilePic = 'default_profile.jpg';
             $documentFile = 'default_document.pdf';
 
             if ($hasFiles) {
-                // Process passport photo
+                // Processing passport photo
                 $picFile = $_FILES['passportPhoto'];
                 $picExtension = pathinfo($picFile['name'], PATHINFO_EXTENSION);
                 $profilePic = 'profile_' . time() . '_' . rand(1000, 9999) . '.' . $picExtension;
                 move_uploaded_file($picFile['tmp_name'], $this->uploadDir['profile'] . $profilePic);
                 
-                // Process document
+                // Processing the document
                 $docFile = $_FILES['document'];
                 $docExtension = pathinfo($docFile['name'], PATHINFO_EXTENSION);
                 $documentFile = 'document_' . time() . '_' . rand(1000, 9999) . '.' . $docExtension;
                 move_uploaded_file($docFile['tmp_name'], $this->uploadDir['document'] . $documentFile);
             }
 
-            // Create application with both regular fields and file paths
+            // Creating application with both regular fields and file paths
             $sql = "INSERT INTO tblapply (UserID, SchemeId, ApplicationNumber, DateofBirth, 
                     Gender, Category, Major, Address, AshesiID, ProfilePic, DocReq, Status, ApplyDate) 
                     VALUES (:userId, :schemeId, :applicationNumber, :dateOfBirth, 
@@ -202,7 +202,7 @@ class ApplicationController {
             $query->execute();
             $applicationId = $this->db->lastInsertId();
 
-            // Add documents to the documents table if we have actual files
+            // Adding documents to the documents table if we have actual files
             if ($hasFiles) {
                 $this->addDocumentRecord($applicationId, $userId, 'passport_photo', $picFile['name'], $profilePic);
                 $this->addDocumentRecord($applicationId, $userId, 'required_document', $docFile['name'], $documentFile);

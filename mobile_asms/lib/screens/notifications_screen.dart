@@ -7,6 +7,9 @@ import '../utils/app_colors.dart';
 import '../widgets/notification_tile.dart';
 import '../providers/auth_provider.dart';
 import '../screens/bank_details_screen.dart';
+import 'package:sensors_plus/sensors_plus.dart';
+import 'dart:async';
+import 'dart:math';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({Key? key}) : super(key: key);
@@ -19,12 +22,49 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   bool _isLoading = true;
   String? _error;
 
+  StreamSubscription? _accelerometerSubscription;
+  DateTime? _lastShakeTime;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadNotifications();
     });
+    _startShakeDetection();
+  }
+
+  @override
+  void dispose() {
+    _accelerometerSubscription?.cancel();
+    super.dispose();
+  }
+
+  void _startShakeDetection() {
+    const double shakeThreshold = 15.0;
+    _accelerometerSubscription =
+        accelerometerEvents.listen((AccelerometerEvent event) {
+      double acceleration =
+          sqrt(event.x * event.x + event.y * event.y + event.z * event.z);
+      if (acceleration > shakeThreshold) {
+        final now = DateTime.now();
+        if (_lastShakeTime == null ||
+            now.difference(_lastShakeTime!) > Duration(seconds: 2)) {
+          _lastShakeTime = now;
+          _onShake();
+        }
+      }
+    });
+  }
+
+  void _onShake() {
+    _loadNotifications();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Refreshing notifications (shake detected)!')),
+      );
+    }
   }
 
   Future<void> _loadNotifications() async {
@@ -83,12 +123,20 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       final title = notification.title.toLowerCase();
       final message = notification.message.toLowerCase();
 
-      // Only allow navigation for approved notifications
+      final isDisbursed =
+          title.contains('disbursed') || message.contains('disbursed');
+      final isApproved = (type == 'success' ||
+              title.contains('approved') ||
+              message.contains('approved')) &&
+          !isDisbursed;
+      final isRejected = type == 'error' ||
+          type == 'warning' ||
+          title.contains('rejected') ||
+          message.contains('rejected');
+
       if (notification.actionType == 'view-application' &&
           notification.actionId != null &&
-          (type == 'success' ||
-              title.contains('approved') ||
-              message.contains('approved'))) {
+          isApproved) {
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -96,10 +144,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 BankDetailsScreen(applicationId: notification.actionId!),
           ),
         );
-      } else if (type == 'error' ||
-          type == 'warning' ||
-          title.contains('rejected') ||
-          message.contains('rejected')) {
+      } else if (isDisbursed) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Your scholarship has been disbursed!')),
+        );
+      } else if (isRejected) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('This application was not approved.')),
         );

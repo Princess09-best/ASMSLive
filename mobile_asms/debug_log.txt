@@ -385,3 +385,41 @@
             VALUES (:schemeid, :appnum, :uid, :dob, :gender, :category, :major, :address, :ashesiID, :pic, :doc, '', NOW())
 [2025-05-08 17:22:47] Parameters: SchemeId=1, DateofBirth=2007-05-11, Gender=Female, Category=HighNeed, Major=ryjmn, Address=Gkm, AshesiID=24689647
 [2025-05-08 17:22:47] Insert successful. ID: 60, Application Number: 396082119
+[2025-05-08 19:30:51] File Upload - Request received: POST with URI /ASMSLive/mobile_asms/file_upload.php
+[2025-05-08 19:30:51] Processing file upload: {"fileType":"profile"}
+[2025-05-08 19:30:51] Files received: ["profilePic"]
+[2025-05-08 19:30:51] File uploaded successfully to: ../users/proimages/fd73c7362919f069195c6f9fd54ab3301746725451.jpg
+[2025-05-08 19:30:51] File Upload - Request received: POST with URI /ASMSLive/mobile_asms/file_upload.php
+[2025-05-08 19:30:51] Processing file upload: {"fileType":"document"}
+[2025-05-08 19:30:51] Files received: ["document"]
+[2025-05-08 19:30:51] File uploaded successfully to: ../users/document/2cddc089b53a02f107c2c8e94b6d62831746725451.pdf
+[2025-05-08 19:30:52] Request received: POST with URI /ASMSLive/mobile_asms/direct_insert.php
+[2025-05-08 19:30:52] Raw input: {"schemeId":1,"dateOfBirth":"05/11/2007","gender":"Female","category":"Average","major":"Computer Science ","address":"ASHESI UNIVERSITY ","ashesiId":"88220265","pic":"fd73c7362919f069195c6f9fd54ab3301746725451.jpg","doc":"2cddc089b53a02f107c2c8e94b6d62831746725451.pdf","userId":19}
+[2025-05-08 19:30:52] Received data: {"schemeId":1,"dateOfBirth":"05\/11\/2007","gender":"Female","category":"Average","major":"Computer Science ","address":"ASHESI UNIVERSITY ","ashesiId":"88220265","pic":"fd73c7362919f069195c6f9fd54ab3301746725451.jpg","doc":"2cddc089b53a02f107c2c8e94b6d62831746725451.pdf","userId":19}
+[2025-05-08 19:30:52] Original date: 05/11/2007
+[2025-05-08 19:30:52] Converted date to: 2007-05-11
+[2025-05-08 19:30:52] Database connection established
+[2025-05-08 19:30:52] Generated application number: 428694232
+[2025-05-08 19:30:52] Executing SQL: INSERT INTO tblapply(SchemeId, ApplicationNumber, UserID, DateofBirth, Gender, Category, Major, Address, AshesiID, ProfilePic, DocReq, Status, ApplyDate) 
+            VALUES (:schemeid, :appnum, :uid, :dob, :gender, :category, :major, :address, :ashesiID, :pic, :doc, '', NOW())
+[2025-05-08 19:30:52] Parameters: SchemeId=1, DateofBirth=2007-05-11, Gender=Female, Category=Average, Major=Computer Science , Address=ASHESI UNIVERSITY , AshesiID=88220265
+[2025-05-08 19:30:52] Insert successful. ID: 61, Application Number: 428694232
+[2025-05-08 19:33:35] File Upload - Request received: POST with URI /ASMSLive/mobile_asms/file_upload.php
+[2025-05-08 19:33:35] Processing file upload: {"fileType":"profile"}
+[2025-05-08 19:33:35] Files received: ["profilePic"]
+[2025-05-08 19:33:35] Invalid file extension: 
+[2025-05-08 19:33:35] File Upload - Request received: POST with URI /ASMSLive/mobile_asms/file_upload.php
+[2025-05-08 19:33:35] Processing file upload: {"fileType":"document"}
+[2025-05-08 19:33:35] Files received: ["document"]
+[2025-05-08 19:33:35] Invalid file extension: 
+[2025-05-08 19:33:35] Request received: POST with URI /ASMSLive/mobile_asms/direct_insert.php
+[2025-05-08 19:33:35] Raw input: {"schemeId":1,"dateOfBirth":"05/10/2007","gender":"Male","category":"HighNeed","major":"Law","address":"Ashesi University ","ashesiId":"88720225","pic":"default_profile.jpg","doc":"default_document.pdf","userId":19}
+[2025-05-08 19:33:35] Received data: {"schemeId":1,"dateOfBirth":"05\/10\/2007","gender":"Male","category":"HighNeed","major":"Law","address":"Ashesi University ","ashesiId":"88720225","pic":"default_profile.jpg","doc":"default_document.pdf","userId":19}
+[2025-05-08 19:33:35] Original date: 05/10/2007
+[2025-05-08 19:33:35] Converted date to: 2007-05-10
+[2025-05-08 19:33:35] Database connection established
+[2025-05-08 19:33:35] Generated application number: 718125337
+[2025-05-08 19:33:35] Executing SQL: INSERT INTO tblapply(SchemeId, ApplicationNumber, UserID, DateofBirth, Gender, Category, Major, Address, AshesiID, ProfilePic, DocReq, Status, ApplyDate) 
+            VALUES (:schemeid, :appnum, :uid, :dob, :gender, :category, :major, :address, :ashesiID, :pic, :doc, '', NOW())
+[2025-05-08 19:33:35] Parameters: SchemeId=1, DateofBirth=2007-05-10, Gender=Male, Category=HighNeed, Major=Law, Address=Ashesi University , AshesiID=88720225
+[2025-05-08 19:33:35] Insert successful. ID: 62, Application Number: 718125337

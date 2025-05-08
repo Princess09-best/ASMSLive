@@ -147,14 +147,12 @@ class AuthController {
     }
     
     private function logout($token) {
-        // Since we're using JWT, real logout is handled client-side by removing the token
-        // Here we just return a success response
+        
         if ($token) {
-            // In a more advanced implementation, you could add the token to a blacklist
-            // or implement token revocation
+            
             $userData = JWTHelper::validateToken($token);
             if ($userData) {
-                // Log the logout event if needed
+                
                 error_log("User ID {$userData['userId']} logged out");
             }
         }

@@ -27,6 +27,39 @@ $query->bindParam(':disbursed',$disbursed,PDO::PARAM_STR);
 $query->bindParam(':appnumber',$appnumber,PDO::PARAM_STR);
 
  $query->execute();
+ 
+
+// Add notification if disbursed
+$sql = "SELECT a.UserID, s.SchemeName, a.ID as appid
+        FROM tblapply a
+        JOIN tblscheme s ON a.SchemeId = s.ID
+        WHERE a.ApplicationNumber = :appnumber";
+$query2 = $db->prepare($sql);
+$query2->bindParam(':appnumber', $appnumber, PDO::PARAM_STR);
+$query2->execute();
+$result = $query2->fetch(PDO::FETCH_ASSOC);
+
+if ($status == 'Disbursed' && $result) {
+    $userId = $result['UserID'];
+    $schemeName = $result['SchemeName'];
+    $applicationId = $result['appid'];
+    $title = 'Scholarship Disbursed';
+    $message = "₵$disbursed has been disbursed for your application to $schemeName.";
+    $type = 'success';
+    $actionType = 'view-application';
+    $actionId = $applicationId;
+
+    $sqlNotif = "INSERT INTO tblnotifications (UserID, Title, Message, Type, ActionType, ActionId, IsRead, CreatedAt)
+                 VALUES (:userId, :title, :message, :type, :actionType, :actionId, 0, NOW())";
+    $notifQuery = $db->prepare($sqlNotif);
+    $notifQuery->bindParam(':userId', $userId);
+    $notifQuery->bindParam(':title', $title);
+    $notifQuery->bindParam(':message', $message);
+    $notifQuery->bindParam(':type', $type);
+    $notifQuery->bindParam(':actionType', $actionType);
+    $notifQuery->bindParam(':actionId', $actionId);
+    $notifQuery->execute();
+}
 
   echo '<script>alert("Remark has been updated")</script>';
  echo "<script>window.location.href ='scholars-bank-details.php'</script>";

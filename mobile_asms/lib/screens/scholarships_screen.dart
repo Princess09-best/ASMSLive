@@ -76,9 +76,7 @@ class _ScholarshipsScreenState extends State<ScholarshipsScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.search),
-            onPressed: () {
-              // TODO: Implement search
-            },
+            onPressed: () {},
           ),
         ],
       ),
